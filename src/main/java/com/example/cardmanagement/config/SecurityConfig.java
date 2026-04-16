@@ -48,6 +48,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 // 允许所有用户访问登录接口
                 .requestMatchers("/api/auth/login").permitAll()
+                // 允许所有用户访问测试接口
+                .requestMatchers("/api/test/**").permitAll()
                 // 其他接口需要认证
                 .anyRequest().authenticated()
             );

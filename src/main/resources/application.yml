@@ -19,7 +19,7 @@ spring:
         format_sql: true
 
 server:
-  port: 8082
+  port: 8080
 
 jwt:
   secret: your-complex-secret-key-here

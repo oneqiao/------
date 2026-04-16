@@ -3,17 +3,17 @@ package com.example.cardmanagement.config;
 import com.example.cardmanagement.entity.SysUser;
 import com.example.cardmanagement.repository.SysUserRepository;
 import com.example.cardmanagement.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -22,44 +22,47 @@ import java.io.IOException;
  */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-    
-    @Autowired
-    private JwtUtil jwtUtil;
-    
-    @Autowired
-    private SysUserRepository userRepository;
-    
+
+    private final JwtUtil jwtUtil;
+    private final SysUserRepository userRepository;
+
+    public JwtFilter(JwtUtil jwtUtil, SysUserRepository userRepository) {
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
+    }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // 从请求头中获取token
-        String token = request.getHeader("Authorization");
-        
-        // 处理token格式
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            
-            // 验证token
-            if (jwtUtil.validateToken(token)) {
-                // 从token中获取用户名
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+        String authorization = request.getHeader("Authorization");
+
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring(7);
+
+            if (jwtUtil.validateToken(token)
+                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+
                 String username = jwtUtil.getUsernameFromToken(token);
-                
-                // 查询用户信息
-                SysUser user = userRepository.findByUsername(username);
-                
-                if (user != null && user.getIsEnabled()) {
-                    // 创建认证对象
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            user, null, null
-                    );
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    
-                    // 设置认证信息到Security上下文
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                if (username != null && !username.trim().isEmpty()) {
+                    SysUser user = userRepository.findByUsername(username.trim());
+
+                    if (user != null && Boolean.TRUE.equals(user.getIsEnabled())) {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(user, null, null);
+
+                        authentication.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
         }
-        
-        // 继续执行过滤器链
+
         filterChain.doFilter(request, response);
     }
 }
