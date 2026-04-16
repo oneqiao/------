@@ -1,5 +1,6 @@
 package com.example.cardmanagement.controller;
 
+import com.example.cardmanagement.dto.MerchantDTO;
 import com.example.cardmanagement.entity.Merchant;
 import com.example.cardmanagement.service.MerchantService;
 import com.example.cardmanagement.util.PageUtil;
@@ -36,7 +37,7 @@ public class MerchantController {
                                     @RequestParam(defaultValue = "10") int size,
                                     @RequestParam(required = false) String merchantNo,
                                     @RequestParam(required = false) String name,
-                                    @RequestParam(required = false) String merchantType,
+                                    @RequestParam(required = false) Integer merchantType,
                                     @RequestParam(required = false) Long agentId,
                                     @RequestParam(required = false) Integer accountStatus,
                                     @RequestParam(required = false) Integer fundFreeze,
@@ -72,15 +73,14 @@ public class MerchantController {
 
     /**
      * 新增商户
+     *
+     * @param merchantDTO 商户数据传输对象
+     * @return 新增的商户对象
      */
     @PostMapping
-    public Response addMerchant(@RequestBody Merchant merchant) {
-        if (merchant == null) {
-            return Response.error(400, "请求体不能为空");
-        }
-
+    public Response addMerchant(@RequestBody MerchantDTO merchantDTO) {
         try {
-            Merchant savedMerchant = merchantService.addMerchant(merchant);
+            Merchant savedMerchant = merchantService.addMerchant(merchantDTO);
             return Response.success("新增商户成功", savedMerchant);
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
@@ -162,7 +162,7 @@ public class MerchantController {
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportMerchants(@RequestParam(required = false) String merchantNo,
                                                   @RequestParam(required = false) String name,
-                                                  @RequestParam(required = false) String merchantType,
+                                                  @RequestParam(required = false) Integer merchantType,
                                                   @RequestParam(required = false) Long agentId,
                                                   @RequestParam(required = false) Integer accountStatus,
                                                   @RequestParam(required = false) Integer fundFreeze,

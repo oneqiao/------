@@ -104,6 +104,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Spring Boot DevTools (Optional, for faster development) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -27,6 +27,7 @@ F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\exampl
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\dto\LoginDTO.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\CardManagementApplication.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\entity\MerchantCard.java
+F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\enums\MerchantType.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\util\JwtUtil.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\config\JwtFilter.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\vo\LoginVO.java

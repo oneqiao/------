@@ -22,7 +22,6 @@ import java.util.Map;
  * 处理代理相关的业务逻辑
  */
 @Service
-@Transactional(readOnly = true)
 public class AgentService {
 
     private final AgentRepository agentRepository;
@@ -35,23 +34,17 @@ public class AgentService {
 
     /**
      * 分页查询代理列表
-     *
-     * @param pageable 分页参数
-     * @param name     代理名称
-     * @param status   状态
-     * @return 分页代理列表，包含商户数量
      */
+    @Transactional(readOnly = true)
     @NonNull
     public Page<Map<String, Object>> getAgentList(@NonNull Pageable pageable, String name, Integer status) {
         Specification<Agent> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 代理名称模糊查询
             if (name != null && !name.trim().isEmpty()) {
                 predicates.add(cb.like(root.get("name"), "%" + name.trim() + "%"));
             }
 
-            // 状态查询
             if (status != null) {
                 predicates.add(cb.equal(root.get("status"), status));
             }
@@ -71,31 +64,26 @@ public class AgentService {
             map.put("singleCardFee", agent.getSingleCardFee());
             map.put("rechargeRate", agent.getRechargeRate());
             map.put("createTime", agent.getCreateTime());
-
-            long merchantCount = merchantRepository.countByAgentId(agent.getId());
-            map.put("merchantCount", merchantCount);
-
+            map.put("merchantCount", merchantRepository.countByAgentId(agent.getId()));
             return map;
         });
     }
 
     /**
      * 新增代理
-     * @param agent 代理对象
-     * @return Agent 保存后的代理对象
      */
-    public Agent addAgent(Agent agent) {
-        // 检查代理名称是否为空
+    @Transactional
+    @NonNull
+    public Agent addAgent(@NonNull Agent agent) {
         if (agent.getName() == null || agent.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("代理名称不能为空");
         }
 
-        // 设置默认值
         if (agent.getBalance() == null) {
             agent.setBalance(BigDecimal.ZERO);
         }
         if (agent.getStatus() == null) {
-            agent.setStatus(1);  // 默认启用
+            agent.setStatus(1);
         }
         if (agent.getTotalRechargeAmount() == null) {
             agent.setTotalRechargeAmount(BigDecimal.ZERO);
@@ -107,15 +95,11 @@ public class AgentService {
             agent.setRechargeRate(BigDecimal.ZERO);
         }
 
-        return agentRepository.save(agent);  // 保存代理并返回
+        return agentRepository.save(agent);
     }
 
     /**
      * 编辑代理
-     *
-     * @param id    代理ID
-     * @param agent 代理对象
-     * @return 更新后的代理对象
      */
     @Transactional
     @NonNull
@@ -141,8 +125,6 @@ public class AgentService {
 
     /**
      * 删除代理
-     *
-     * @param id 代理ID
      */
     @Transactional
     public void deleteAgent(@NonNull Long id) {
