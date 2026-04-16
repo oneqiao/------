@@ -1,4 +1,3 @@
-F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\test\PasswordGenerator.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\controller\AuthController.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\dto\AgentDTO.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\repository\AgentRepository.java
@@ -22,7 +21,6 @@ F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\exampl
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\entity\SysUser.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\service\MerchantService.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\config\GlobalExceptionHandler.java
-F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\test\PasswordTest.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\config\SecurityConfig.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\util\Response.java
 F:\study\postgtaduate\Cursor_project\卡台管理系统\src\main\java\com\example\cardmanagement\controller\UserController.java

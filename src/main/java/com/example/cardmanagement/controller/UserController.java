@@ -78,12 +78,15 @@ public class UserController {
         }
 
         try {
+            // 调用业务层的更新方法
             SysUser updatedUser = userService.updateUser(id, user);
             return Response.success("编辑用户成功", updatedUser);
         } catch (IllegalArgumentException e) {
-            return Response.error(400, e.getMessage());
+            return Response.error(400, e.getMessage());  // 捕获业务异常
         } catch (Exception e) {
-            return Response.error(500, "编辑用户失败: " + e.getMessage());
+            // 打印错误信息帮助追踪问题
+            e.printStackTrace();
+            return Response.error(500, "编辑用户失败: " + e.getMessage());  // 捕获其他异常
         }
     }
 

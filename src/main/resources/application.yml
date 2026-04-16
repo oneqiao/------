@@ -1,4 +1,5 @@
 spring:
+
   datasource:
     url: jdbc:mysql://localhost:3306/katai?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
@@ -17,12 +18,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  jvm:
+    options: -Xmx2g -Xms2g
 
 server:
   port: 8080
 
 jwt:
-  secret: your-complex-secret-key-here
+  secret: eW91ci1zdXBlci1zZXByZXRfa2V5X2Zvcl9qd3Qtc2lnbmluZy0yMDI2LWNhcmQtbWFuYWdlbWVudC0yMDI2LWNhcmQtbWFuYWdlbWVudC0=
   expiration: 86400000
 
 page:

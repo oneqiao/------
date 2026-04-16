@@ -81,22 +81,21 @@ public class AgentService {
 
     /**
      * 新增代理
-     *
      * @param agent 代理对象
-     * @return 保存后的代理对象
+     * @return Agent 保存后的代理对象
      */
-    @Transactional
-    @NonNull
-    public Agent addAgent(@NonNull Agent agent) {
+    public Agent addAgent(Agent agent) {
+        // 检查代理名称是否为空
         if (agent.getName() == null || agent.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("代理名称不能为空");
         }
 
+        // 设置默认值
         if (agent.getBalance() == null) {
             agent.setBalance(BigDecimal.ZERO);
         }
         if (agent.getStatus() == null) {
-            agent.setStatus(1);
+            agent.setStatus(1);  // 默认启用
         }
         if (agent.getTotalRechargeAmount() == null) {
             agent.setTotalRechargeAmount(BigDecimal.ZERO);
@@ -108,7 +107,7 @@ public class AgentService {
             agent.setRechargeRate(BigDecimal.ZERO);
         }
 
-        return agentRepository.save(agent);
+        return agentRepository.save(agent);  // 保存代理并返回
     }
 
     /**

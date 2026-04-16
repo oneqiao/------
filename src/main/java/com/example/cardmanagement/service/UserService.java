@@ -205,6 +205,15 @@ public class UserService {
         SysUser existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
 
+        if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
+            String newUsername = user.getUsername().trim();
+            SysUser sameUser = userRepository.findByUsername(newUsername);
+            if (sameUser != null && !sameUser.getId().equals(existingUser.getId())) {
+                throw new IllegalArgumentException("用户名已存在");
+            }
+            existingUser.setUsername(newUsername);
+        }
+
         if (user.getFirstName() != null) {
             existingUser.setFirstName(user.getFirstName().trim());
         }
