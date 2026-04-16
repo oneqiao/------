@@ -1,0 +1,446 @@
+表关系图
+text
+sys_user（用户）          agent（代理）           merchant（商户）
+     │                        │                        │
+     │                        │                        │
+     │                 独立使用                   agent_id ──→ agent.id
+     │                        │                        │
+     │                        │                        │
+     └── 权限控制              └────── 1对多 ────────┘       │
+                                                            │
+                                                      1对多  │
+                                                            ↓
+                                                  merchant_card（商户卡号）
+关系说明：
+
+merchant.agent_id → agent.id（多对一：一个代理可管理多个商户）
+
+merchant_card.merchant_id → merchant.id（多对一：一个商户可拥有多张卡片）
+
+sys_user 独立，用于系统登录和权限管理
+
+二、接口设计
+通用响应格式
+json
+{
+  "code": 200,
+  "message": "success",
+  "data": null,
+  "timestamp": 1702656000000
+}
+code值	说明
+200	成功
+400	参数错误
+401	未登录
+403	无权限
+404	资源不存在
+500	服务器错误
+1. 用户模块
+功能	方法	路径	说明
+用户登录	POST	/api/auth/login	登录认证，返回token
+获取当前用户	GET	/api/auth/current	获取登录用户信息
+用户登出	POST	/api/auth/logout	退出登录
+用户列表	GET	/api/users	分页查询用户
+添加用户	POST	/api/users	新增用户
+编辑用户	PUT	/api/users/{id}	修改用户信息
+删除用户	DELETE	/api/users/{id}	删除用户
+1.1 用户登录
+text
+POST /api/auth/login
+请求体：
+
+json
+{
+  "username": "admin",
+  "password": "123456"
+}
+响应：
+
+json
+{
+  "code": 200,
+  "message": "登录成功",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "userInfo": {
+      "id": 1,
+      "username": "admin",
+      "firstName": "系统",
+      "lastName": "管理员",
+      "email": "admin@example.com",
+      "isAdmin": true,
+      "isEnabled": true
+    }
+  }
+}
+1.2 用户列表
+text
+GET /api/users?page=1&size=10
+请求参数：
+
+参数	类型	必填	说明
+page	int	否	页码，默认1
+size	int	否	每页条数，默认10
+keyword	string	否	关键词（模糊匹配用户名/姓名/邮箱）
+isEnabled	int	否	是否启用（0禁用，1启用）
+isAdmin	int	否	是否管理员（0否，1是）
+startTime	string	否	创建开始时间
+endTime	string	否	创建结束时间
+响应：
+
+json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total": 100,
+    "page": 1,
+    "size": 10,
+    "list": [
+      {
+        "id": 1,
+        "username": "admin",
+        "firstName": "系统",
+        "lastName": "管理员",
+        "email": "admin@example.com",
+        "isEnabled": true,
+        "isAdmin": true,
+        "createTime": "2026-01-01 10:00:00",
+        "lastLoginTime": "2026-04-15 09:30:00"
+      }
+    ]
+  }
+}
+1.3 添加用户
+text
+POST /api/users
+请求体：
+
+json
+{
+  "username": "zhangsan",
+  "firstName": "三",
+  "lastName": "张",
+  "email": "zhangsan@example.com",
+  "password": "123456",
+  "isEnabled": true,
+  "isAdmin": false
+}
+1.4 编辑用户
+text
+PUT /api/users/{id}
+请求体：
+
+json
+{
+  "firstName": "三",
+  "lastName": "张",
+  "email": "newemail@example.com",
+  "password": "newpassword",
+  "isEnabled": true,
+  "isAdmin": false
+}
+注：password 字段可选，不传则不修改密码
+
+1.5 删除用户
+text
+DELETE /api/users/{id}
+2. 代理模块
+功能	方法	路径	说明
+代理列表	GET	/api/agents	分页查询代理
+新增代理	POST	/api/agents	新增代理
+编辑代理	PUT	/api/agents/{id}	修改代理信息
+删除代理	DELETE	/api/agents/{id}	删除代理
+2.1 代理列表
+text
+GET /api/agents?page=1&size=10
+请求参数：
+
+参数	类型	必填	说明
+page	int	否	页码，默认1
+size	int	否	每页条数，默认10
+name	string	否	代理名称（模糊查询）
+status	int	否	状态（0禁用，1启用）
+响应：
+
+json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total": 50,
+    "page": 1,
+    "size": 10,
+    "list": [
+      {
+        "id": 1,
+        "name": "张三",
+        "balance": 100000.00,
+        "status": 1,
+        "totalRechargeAmount": 50000.00,
+        "singleCardFee": 2.00,
+        "rechargeRate": 0.0150,
+        "createTime": "2026-01-01 10:00:00",
+        "merchantCount": 5
+      }
+    ]
+  }
+}
+2.2 新增代理
+text
+POST /api/agents
+请求体：
+
+json
+{
+  "name": "李四",
+  "balance": 0.00,
+  "status": 1,
+  "singleCardFee": 2.00,
+  "rechargeRate": 0.0150
+}
+2.3 编辑代理
+text
+PUT /api/agents/{id}
+请求体：
+
+json
+{
+  "name": "李四",
+  "status": 1,
+  "singleCardFee": 2.50,
+  "rechargeRate": 0.0180
+}
+注：balance 和 totalRechargeAmount 通过余额流水变动，不在此接口修改
+
+2.4 删除代理
+text
+DELETE /api/agents/{id}
+响应（有商户关联时）：
+
+json
+{
+  "code": 400,
+  "message": "该代理下存在关联商户，请先删除或转移商户"
+}
+3. 商户模块
+功能	方法	路径	说明
+商户列表	GET	/api/merchants	分页查询商户
+商户详情	GET	/api/merchants/{id}	获取单个商户详情
+新增商户	POST	/api/merchants	新增商户
+编辑商户	PUT	/api/merchants/{id}	修改商户信息
+删除商户	DELETE	/api/merchants/{id}	软删除商户
+调整余额	POST	/api/merchants/{id}/balance	充值/提现调整余额
+导出商户	GET	/api/merchants/export	导出Excel/CSV
+3.1 商户列表
+text
+GET /api/merchants?page=1&size=10
+请求参数：
+
+参数	类型	必填	说明
+page	int	否	页码，默认1
+size	int	否	每页条数，默认10
+merchantNo	string	否	商户号（精确匹配）
+name	string	否	商户名称（模糊匹配）
+merchantType	string	否	商户类型（white/refund）
+agentId	int	否	代理ID
+accountStatus	int	否	账号状态（0禁用，1正常，2删除）
+fundFreeze	int	否	资金冻结（0未冻结，1冻结）
+negativeBalance	int	否	余额负数（1是，0否）
+响应：
+
+json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total": 100,
+    "page": 1,
+    "size": 10,
+    "list": [
+      {
+        "id": 1,
+        "merchantNo": "M10001",
+        "name": "A商户",
+        "merchantType": "white",
+        "agentId": 1,
+        "agentName": "张三",
+        "loginAccount": "merchant01",
+        "accountStatus": 1,
+        "accountStatusText": "正常",
+        "fundFreeze": 0,
+        "currentBalance": 5000.00,
+        "cardCount": 3,
+        "cardBalance": 3000.00,
+        "createTime": "2026-01-01 10:00:00"
+      }
+    ]
+  }
+}
+3.2 商户详情
+text
+GET /api/merchants/{id}
+响应：
+
+json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "id": 1,
+    "merchantNo": "M10001",
+    "name": "A商户",
+    "merchantType": "white",
+    "agentId": 1,
+    "agentName": "张三",
+    "loginAccount": "merchant01",
+    "accountStatus": 1,
+    "fundFreeze": 0,
+    "currentBalance": 5000.00,
+    "cardCount": 3,
+    "cardBalance": 3000.00,
+    "createTime": "2026-01-01 10:00:00",
+    "cardList": [
+      {
+        "id": 1,
+        "cardNo": "6212280012345678",
+        "cardStatus": 1,
+        "cardBalance": 1000.00
+      },
+      {
+        "id": 2,
+        "cardNo": "6212280012345679",
+        "cardStatus": 1,
+        "cardBalance": 1000.00
+      }
+    ]
+  }
+}
+3.3 新增商户
+text
+POST /api/merchants
+请求体：
+
+json
+{
+  "merchantNo": "M10002",
+  "name": "B商户",
+  "merchantType": "white",
+  "agentId": 1,
+  "loginAccount": "merchant02",
+  "loginPassword": "123456",
+  "currentBalance": 0.00
+}
+默认值：accountStatus=1（正常），fundFreeze=0（未冻结）
+
+3.4 编辑商户
+text
+PUT /api/merchants/{id}
+请求体：
+
+json
+{
+  "name": "B商户-新名称",
+  "merchantType": "refund",
+  "agentId": 2,
+  "accountStatus": 1,
+  "fundFreeze": 0
+}
+注：merchantNo、loginAccount 不可修改
+
+3.5 删除商户
+text
+DELETE /api/merchants/{id}
+逻辑： 将 account_status 改为 2（删除状态）
+
+响应：
+
+json
+{
+  "code": 200,
+  "message": "删除成功"
+}
+3.6 调整余额
+text
+POST /api/merchants/{id}/balance
+请求体：
+
+json
+{
+  "type": "recharge",
+  "amount": 1000.00,
+  "reason": "客户充值"
+}
+type值	说明
+recharge	充值（增加余额）
+withdraw	提现（减少余额）
+响应：
+
+json
+{
+  "code": 200,
+  "message": "调整成功",
+  "data": {
+    "oldBalance": 5000.00,
+    "newBalance": 6000.00,
+    "changeAmount": 1000.00
+  }
+}
+3.7 导出商户列表
+text
+GET /api/merchants/export
+请求参数： 同“商户列表”的查询参数
+
+响应： Excel文件
+
+text
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+Content-Disposition: attachment; filename=merchants_20260415.xlsx
+导出字段： 商户号、商户名称、商户类型、代理名称、登录账号、账号状态、资金冻结、当前余额、开卡数、卡内余额、创建时间
+
+三、接口汇总表
+模块	功能	方法	路径
+用户	登录	POST	/api/auth/login
+用户	当前用户	GET	/api/auth/current
+用户	登出	POST	/api/auth/logout
+用户	用户列表	GET	/api/users
+用户	添加用户	POST	/api/users
+用户	编辑用户	PUT	/api/users/{id}
+用户	删除用户	DELETE	/api/users/{id}
+代理	代理列表	GET	/api/agents
+代理	新增代理	POST	/api/agents
+代理	编辑代理	PUT	/api/agents/{id}
+代理	删除代理	DELETE	/api/agents/{id}
+商户	商户列表	GET	/api/merchants
+商户	商户详情	GET	/api/merchants/{id}
+商户	新增商户	POST	/api/merchants
+商户	编辑商户	PUT	/api/merchants/{id}
+商户	删除商户	DELETE	/api/merchants/{id}
+商户	调整余额	POST	/api/merchants/{id}/balance
+商户	导出商户	GET	/api/merchants/export
+四、状态码说明
+账号状态（account_status）
+值	说明
+0	禁用
+1	正常
+2	删除（软删除）
+资金冻结（fund_freeze）
+值	说明
+0	未冻结
+1	冻结
+商户类型（merchant_type）
+值	说明
+white	白量
+refund	退款
+用户启用状态（is_enabled）
+值	说明
+0	禁用
+1	启用
+代理状态（status）
+值	说明
+0	禁用
+1	启用
+卡状态（card_status）
+值	说明
+0	禁用
+1	正常

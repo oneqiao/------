@@ -1,0 +1,66 @@
+-- 1. 用户表
+CREATE TABLE `sys_user` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL COMMENT '用户名',
+  `first_name` varchar(50) DEFAULT NULL COMMENT '姓',
+  `last_name` varchar(50) DEFAULT NULL COMMENT '名称',
+  `email` varchar(100) DEFAULT NULL COMMENT '邮箱地址',
+  `password` varchar(255) NOT NULL COMMENT '密码',
+  `is_enabled` tinyint(1) DEFAULT 1 COMMENT '是否启用 0禁用 1启用',
+  `is_admin` tinyint(1) DEFAULT 0 COMMENT '是否为Admin 0否 1是',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `last_login_time` datetime DEFAULT NULL COMMENT '最近登录时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+
+-- 2. 代理表
+CREATE TABLE `agent` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL COMMENT '名称',
+  `balance` decimal(20,2) DEFAULT 0.00 COMMENT '余额',
+  `status` tinyint(1) DEFAULT 1 COMMENT '状态 0禁用 1启用',
+  `total_recharge_amount` decimal(20,2) DEFAULT 0.00 COMMENT '充值总金额',
+  `single_card_fee` decimal(10,2) DEFAULT 0.00 COMMENT '单笔开卡费用',
+  `recharge_rate` decimal(10,4) DEFAULT 0.0000 COMMENT '充值费率',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='代理表';
+
+-- 3. 商户表（更新版）
+CREATE TABLE `merchant` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `merchant_no` varchar(50) NOT NULL COMMENT '商户号',
+  `name` varchar(100) NOT NULL COMMENT '名称',
+  `merchant_type` varchar(20) DEFAULT NULL COMMENT '商户类型 white白量 refund退款',
+  `agent_id` bigint DEFAULT NULL COMMENT '代理ID',
+  `login_account` varchar(50) DEFAULT NULL COMMENT '登陆账号',
+  `login_password` varchar(255) DEFAULT NULL COMMENT '登录密码',
+  `account_status` tinyint DEFAULT 1 COMMENT '帐号状态 0禁用 1正常 2删除',
+  `fund_freeze` tinyint(1) DEFAULT 0 COMMENT '资金冻结 0未冻结 1冻结',
+  `current_balance` decimal(20,2) DEFAULT 0.00 COMMENT '当前余额',
+  `card_count` int DEFAULT 0 COMMENT '开卡数',
+  `card_balance` decimal(20,2) DEFAULT 0.00 COMMENT '卡内余额',
+  `card_list` text COMMENT '卡号列表(JSON格式)',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_merchant_no` (`merchant_no`),
+  UNIQUE KEY `uk_login_account` (`login_account`),
+  KEY `idx_agent_id` (`agent_id`),
+  KEY `idx_account_status` (`account_status`),
+  CONSTRAINT `fk_merchant_agent` FOREIGN KEY (`agent_id`) REFERENCES `agent` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商户表';
+
+-- 4. 商户卡号表（独立表方案，推荐）
+CREATE TABLE `merchant_card` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `merchant_id` bigint NOT NULL COMMENT '商户ID',
+  `card_no` varchar(50) NOT NULL COMMENT '卡号',
+  `card_status` tinyint DEFAULT 1 COMMENT '卡状态 0禁用 1正常',
+  `card_balance` decimal(20,2) DEFAULT 0.00 COMMENT '单卡余额',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_card_no` (`card_no`),
+  KEY `idx_merchant_id` (`merchant_id`),
+  CONSTRAINT `fk_card_merchant` FOREIGN KEY (`merchant_id`) REFERENCES `merchant` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商户卡号表';
