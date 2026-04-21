@@ -3,18 +3,48 @@ package com.example.cardmanagement.dto;
 import lombok.Data;
 
 /**
- * 商户数据传输对象（DTO）
+ * 商户请求 DTO。
  */
 @Data
 public class MerchantDTO {
 
+    /**
+     * 商户号。
+     */
     private String merchantNo;
-    private String name;
-    private Integer merchantType; // 商户类型（0=refund, 1=white）
-    private Long agentId;
-    private String loginAccount;
-    private String loginPassword; // 密码字段
-    private Integer accountStatus; // 账号状态（0=禁用，1=启用）
-    private Boolean fundFreeze; // 资金冻结
 
+    /**
+     * 商户名称。
+     */
+    private String name;
+
+    /**
+     * 商户类型，使用枚举字符串：WHITE / REFUND。
+     */
+    private String merchantType;
+
+    /**
+     * 代理 ID。
+     */
+    private Long agentId;
+
+    /**
+     * 登录账号。
+     */
+    private String loginAccount;
+
+    /**
+     * 登录密码。
+     */
+    private String loginPassword;
+
+    /**
+     * 账号状态：0 禁用，1 正常，2 删除。
+     */
+    private Integer accountStatus;
+
+    /**
+     * 资金是否冻结。
+     */
+    private Boolean fundFreeze;
 }

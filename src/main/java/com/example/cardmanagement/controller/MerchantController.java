@@ -1,7 +1,6 @@
 package com.example.cardmanagement.controller;
 
 import com.example.cardmanagement.dto.MerchantDTO;
-import com.example.cardmanagement.entity.Merchant;
 import com.example.cardmanagement.service.MerchantService;
 import com.example.cardmanagement.util.PageUtil;
 import com.example.cardmanagement.util.Response;
@@ -16,8 +15,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 /**
- * 商户控制器
- * 处理商户管理相关的接口
+ * 商户管理控制器。
  */
 @RestController
 @RequestMapping("/api/merchants")
@@ -30,14 +28,15 @@ public class MerchantController {
     }
 
     /**
-     * 分页查询商户列表
+     * 分页查询商户列表。
+     * 默认不返回已软删除的商户。
      */
     @GetMapping
     public Response getMerchantList(@RequestParam(defaultValue = "1") int page,
                                     @RequestParam(defaultValue = "10") int size,
                                     @RequestParam(required = false) String merchantNo,
                                     @RequestParam(required = false) String name,
-                                    @RequestParam(required = false) Integer merchantType,
+                                    @RequestParam(required = false) String merchantType,
                                     @RequestParam(required = false) Long agentId,
                                     @RequestParam(required = false) Integer accountStatus,
                                     @RequestParam(required = false) Integer fundFreeze,
@@ -47,8 +46,7 @@ public class MerchantController {
             var merchants = merchantService.getMerchantList(
                     pageable, merchantNo, name, merchantType, agentId, accountStatus, fundFreeze, negativeBalance
             );
-            var response = PageUtil.buildPageResponse(merchants);
-            return Response.success(response);
+            return Response.success(PageUtil.buildPageResponse(merchants));
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -57,13 +55,12 @@ public class MerchantController {
     }
 
     /**
-     * 获取商户详情
+     * 获取商户详情。
      */
     @GetMapping("/{id}")
     public Response getMerchantDetail(@PathVariable Long id) {
         try {
-            var detail = merchantService.getMerchantDetail(id);
-            return Response.success(detail);
+            return Response.success(merchantService.getMerchantDetail(id));
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -72,16 +69,16 @@ public class MerchantController {
     }
 
     /**
-     * 新增商户
-     *
-     * @param merchantDTO 商户数据传输对象
-     * @return 新增的商户对象
+     * 新增商户。
      */
     @PostMapping
     public Response addMerchant(@RequestBody MerchantDTO merchantDTO) {
+        if (merchantDTO == null) {
+            return Response.error(400, "请求体不能为空");
+        }
+
         try {
-            Merchant savedMerchant = merchantService.addMerchant(merchantDTO);
-            return Response.success("新增商户成功", savedMerchant);
+            return Response.success("新增商户成功", merchantService.addMerchant(merchantDTO));
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -90,17 +87,16 @@ public class MerchantController {
     }
 
     /**
-     * 编辑商户
+     * 编辑商户。
      */
     @PutMapping("/{id}")
-    public Response updateMerchant(@PathVariable Long id, @RequestBody Merchant merchant) {
-        if (merchant == null) {
+    public Response updateMerchant(@PathVariable Long id, @RequestBody MerchantDTO merchantDTO) {
+        if (merchantDTO == null) {
             return Response.error(400, "请求体不能为空");
         }
 
         try {
-            Merchant updatedMerchant = merchantService.updateMerchant(id, merchant);
-            return Response.success("编辑商户成功", updatedMerchant);
+            return Response.success("编辑商户成功", merchantService.updateMerchant(id, merchantDTO));
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -109,7 +105,7 @@ public class MerchantController {
     }
 
     /**
-     * 删除商户（软删除）
+     * 软删除商户。
      */
     @DeleteMapping("/{id}")
     public Response deleteMerchant(@PathVariable Long id) {
@@ -124,7 +120,7 @@ public class MerchantController {
     }
 
     /**
-     * 调整商户余额
+     * 调整商户余额。
      */
     @PostMapping("/{id}/balance")
     public Response adjustBalance(@PathVariable Long id, @RequestBody Map<String, Object> balanceData) {
@@ -138,17 +134,16 @@ public class MerchantController {
             Object reasonObj = balanceData.get("reason");
 
             if (typeObj == null || amountObj == null) {
-                return Response.error(400, "type和amount不能为空");
+                return Response.error(400, "type 和 amount 不能为空");
             }
 
             String type = String.valueOf(typeObj);
             BigDecimal amount = new BigDecimal(String.valueOf(amountObj));
             String reason = reasonObj == null ? "" : String.valueOf(reasonObj);
 
-            var result = merchantService.adjustBalance(id, type, amount, reason);
-            return Response.success("调整成功", result);
+            return Response.success("调整成功", merchantService.adjustBalance(id, type, amount, reason));
         } catch (NumberFormatException e) {
-            return Response.error(400, "amount格式不正确");
+            return Response.error(400, "amount 格式不正确");
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -157,12 +152,13 @@ public class MerchantController {
     }
 
     /**
-     * 导出商户列表为Excel
+     * 导出商户列表为 Excel。
+     * 默认不导出已软删除的商户。
      */
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportMerchants(@RequestParam(required = false) String merchantNo,
                                                   @RequestParam(required = false) String name,
-                                                  @RequestParam(required = false) Integer merchantType,
+                                                  @RequestParam(required = false) String merchantType,
                                                   @RequestParam(required = false) Long agentId,
                                                   @RequestParam(required = false) Integer accountStatus,
                                                   @RequestParam(required = false) Integer fundFreeze,

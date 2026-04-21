@@ -1,34 +1,42 @@
 package com.example.cardmanagement.enums;
 
+import java.util.Locale;
+
 /**
- * 商户类型枚举类
+ * 商户类型枚举。
  */
 public enum MerchantType {
-    WHITE(1, "白量"),
-    REFUND(0, "退款");
+    WHITE("白量"),
+    REFUND("退款");
 
-    private final int code;
     private final String description;
 
-    MerchantType(int code, String description) {
-        this.code = code;
+    MerchantType(String description) {
         this.description = description;
-    }
-
-    public int getCode() {
-        return code;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public static MerchantType fromCode(int code) {
+    /**
+     * 根据字符串值解析商户类型，大小写不敏感。
+     *
+     * @param value 枚举字符串
+     * @return 商户类型
+     */
+    public static MerchantType fromValue(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("商户类型不能为空");
+        }
+
+        String normalizedValue = value.trim().toUpperCase(Locale.ROOT);
         for (MerchantType type : MerchantType.values()) {
-            if (type.getCode() == code) {
+            if (type.name().equals(normalizedValue)) {
                 return type;
             }
         }
-        throw new IllegalArgumentException("无效的商户类型代码");
+
+        throw new IllegalArgumentException("无效的商户类型，可选值：WHITE、REFUND");
     }
 }
