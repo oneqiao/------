@@ -1,6 +1,7 @@
 package com.example.cardmanagement.entity;
 
 import com.example.cardmanagement.enums.MerchantType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -60,6 +61,7 @@ public class Merchant {
     /**
      * 登录密码。
      */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "login_password", nullable = false)
     private String loginPassword;
 

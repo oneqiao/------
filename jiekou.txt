@@ -247,7 +247,8 @@ POST /api/merchants
 说明：
 
 1. `merchantType` 使用枚举字符串，按代码实现存储为 `WHITE` 或 `REFUND`。
-2. `currentBalance`、`cardCount`、`cardBalance` 由系统初始化，新增接口不接收这三个字段。
+2. `loginPassword` 按代码实现会使用 BCrypt 加密后存库，不保存明文。
+3. `currentBalance`、`cardCount`、`cardBalance` 由系统初始化，新增接口不接收这三个字段。
 
 4. 编辑商户
 
@@ -269,8 +270,9 @@ PUT /api/merchants/{id}
 
 说明：
 
-1. 当前代码允许修改 `name`、`merchantType`、`loginAccount`、`accountStatus`、`fundFreeze`。
-2. 已删除商户不允许再编辑。
+1. 当前代码允许修改 `name`、`merchantType`、`loginAccount`、`loginPassword`、`accountStatus`、`fundFreeze`。
+2. 如果传入新的 `loginPassword`，系统会重新使用 BCrypt 加密后保存。
+3. 已删除商户不允许再编辑。
 
 5. 删除商户
 

@@ -35,7 +35,7 @@ CREATE TABLE `merchant` (
   `merchant_type` varchar(20) NOT NULL COMMENT '商户类型，枚举字符串：WHITE / REFUND',
   `agent_id` bigint DEFAULT NULL COMMENT '代理ID',
   `login_account` varchar(50) NOT NULL COMMENT '登录账号',
-  `login_password` varchar(255) NOT NULL COMMENT '登录密码',
+  `login_password` varchar(255) NOT NULL COMMENT '登录密码（BCrypt 加密后存储）',
   `account_status` tinyint DEFAULT 1 COMMENT '账号状态：0 禁用，1 正常，2 删除',
   `fund_freeze` tinyint(1) DEFAULT 0 COMMENT '资金冻结：0 未冻结，1 冻结',
   `current_balance` decimal(20,2) DEFAULT 0.00 COMMENT '当前余额',
@@ -65,5 +65,6 @@ CREATE TABLE `merchant_card` (
 
 -- 说明
 -- 1. merchant.merchant_type 按代码实现使用枚举字符串存储，取值为 WHITE 或 REFUND。
--- 2. merchant.account_status = 2 表示软删除。
--- 3. 当前代码的商户列表与商户导出接口在未显式传 accountStatus 时，默认不查询已删除数据。
+-- 2. merchant.login_password 按代码实现使用 BCrypt 加密后存储，不再保存明文密码。
+-- 3. merchant.account_status = 2 表示软删除。
+-- 4. 当前代码的商户列表与商户导出接口在未显式传 accountStatus 时，默认不查询已删除数据。

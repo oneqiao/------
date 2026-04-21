@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +34,12 @@ public class MerchantService {
     private static final int DELETED_STATUS = 2;
 
     private final MerchantRepository merchantRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public MerchantService(MerchantRepository merchantRepository) {
+    public MerchantService(MerchantRepository merchantRepository,
+                           PasswordEncoder passwordEncoder) {
         this.merchantRepository = merchantRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -86,7 +90,7 @@ public class MerchantService {
         merchant.setMerchantType(MerchantType.fromValue(merchantDTO.getMerchantType()));
         merchant.setAgentId(merchantDTO.getAgentId());
         merchant.setLoginAccount(merchantDTO.getLoginAccount().trim());
-        merchant.setLoginPassword(merchantDTO.getLoginPassword().trim());
+        merchant.setLoginPassword(passwordEncoder.encode(merchantDTO.getLoginPassword().trim()));
         merchant.setAccountStatus(merchantDTO.getAccountStatus() != null ? merchantDTO.getAccountStatus() : 1);
         merchant.setFundFreeze(merchantDTO.getFundFreeze() != null ? merchantDTO.getFundFreeze() : false);
         merchant.setCurrentBalance(BigDecimal.ZERO);
@@ -112,6 +116,9 @@ public class MerchantService {
         }
         if (merchantDTO.getLoginAccount() != null && !merchantDTO.getLoginAccount().trim().isEmpty()) {
             existingMerchant.setLoginAccount(merchantDTO.getLoginAccount().trim());
+        }
+        if (merchantDTO.getLoginPassword() != null && !merchantDTO.getLoginPassword().trim().isEmpty()) {
+            existingMerchant.setLoginPassword(passwordEncoder.encode(merchantDTO.getLoginPassword().trim()));
         }
         if (merchantDTO.getAccountStatus() != null) {
             existingMerchant.setAccountStatus(merchantDTO.getAccountStatus());
