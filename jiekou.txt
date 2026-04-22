@@ -9,13 +9,13 @@ sys_user（用户）          agent（代理）             merchant（商户）
 
 关系说明：
 
-1. merchant.agent_id -> agent.id
+1. `merchant.agent_id -> agent.id`
    一个代理可以管理多个商户。
 
-2. merchant_card.merchant_id -> merchant.id
+2. `merchant_card.merchant_id -> merchant.id`
    一个商户可以拥有多张卡。
 
-3. sys_user 独立存在
+3. `sys_user` 独立存在
    用于后台登录和权限管理。
 
 二、通用响应格式
@@ -40,17 +40,46 @@ sys_user（用户）          agent（代理）             merchant（商户）
 | 404 | 资源不存在 |
 | 500 | 服务器错误 |
 
-三、用户模块
+三、DTO / VO 设计说明
 
-| 功能 | 方法 | 路径 | 说明 |
-| --- | --- | --- | --- |
-| 用户登录 | POST | /api/auth/login | 登录认证，返回 token |
-| 当前用户 | GET | /api/auth/current | 获取当前登录用户 |
-| 用户登出 | POST | /api/auth/logout | 清除当前登录上下文 |
-| 用户列表 | GET | /api/users | 分页查询用户 |
-| 新增用户 | POST | /api/users | 新增用户 |
-| 编辑用户 | PUT | /api/users/{id} | 修改用户信息 |
-| 删除用户 | DELETE | /api/users/{id} | 删除用户 |
+当前接口层已逐步切换为“DTO 入参 + VO 出参”：
+
+1. DTO 负责接收前端请求参数，不直接暴露数据库实体。
+2. VO 负责接口响应，不直接返回实体对象。
+3. 目前主要接口已经按这套方式改造完成。
+
+DTO 一览：
+
+| 名称 | 作用 |
+| --- | --- |
+| `LoginDTO` | 登录入参 |
+| `SysUserDTO` | 用户新增 / 编辑入参 |
+| `AgentDTO` | 代理新增 / 编辑入参 |
+| `MerchantDTO` | 商户新增 / 编辑入参 |
+| `MerchantBalanceDTO` | 商户余额调整入参 |
+| `MerchantCardDTO` | 预留给商户卡接口使用，当前控制器未使用 |
+
+VO 一览：
+
+| 名称 | 作用 |
+| --- | --- |
+| `UserVO` | 用户响应对象 |
+| `LoginVO` | 登录响应对象 |
+| `AgentVO` | 代理响应对象 |
+| `MerchantVO` | 商户响应对象 |
+| `MerchantBalanceVO` | 商户余额调整响应对象 |
+
+四、认证与用户模块
+
+| 功能 | 方法 | 路径 | 入参 DTO | 出参 VO | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 用户登录 | POST | `/api/auth/login` | `LoginDTO` | `LoginVO` | 登录认证，返回 token 和当前用户信息 |
+| 当前用户 | GET | `/api/auth/current` | 无 | `UserVO` | 获取当前登录用户 |
+| 用户登出 | POST | `/api/auth/logout` | 无 | 通用响应 | 清除当前登录上下文 |
+| 用户列表 | GET | `/api/users` | Query 参数 | `Page<UserVO>` | 分页查询用户 |
+| 新增用户 | POST | `/api/users` | `SysUserDTO` | `UserVO` | 新增用户 |
+| 编辑用户 | PUT | `/api/users/{id}` | `SysUserDTO` | `UserVO` | 修改用户信息 |
+| 删除用户 | DELETE | `/api/users/{id}` | 无 | 通用响应 | 删除用户 |
 
 1. 用户登录
 
@@ -58,7 +87,7 @@ sys_user（用户）          agent（代理）             merchant（商户）
 POST /api/auth/login
 ```
 
-请求体：
+请求体：`LoginDTO`
 
 ```json
 {
@@ -67,7 +96,7 @@ POST /api/auth/login
 }
 ```
 
-响应示例：
+成功响应：`LoginVO`
 
 ```json
 {
@@ -81,14 +110,42 @@ POST /api/auth/login
       "firstName": "系统",
       "lastName": "管理员",
       "email": "admin@example.com",
+      "isEnabled": true,
       "isAdmin": true,
-      "isEnabled": true
+      "createTime": "2026-01-01T10:00:00.000+08:00",
+      "lastLoginTime": "2026-04-22T09:30:00.000+08:00"
     }
   }
 }
 ```
 
-2. 用户列表
+2. 当前用户
+
+```text
+GET /api/auth/current
+```
+
+成功响应：`UserVO`
+
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "id": 1,
+    "username": "admin",
+    "firstName": "系统",
+    "lastName": "管理员",
+    "email": "admin@example.com",
+    "isEnabled": true,
+    "isAdmin": true,
+    "createTime": "2026-01-01T10:00:00.000+08:00",
+    "lastLoginTime": "2026-04-22T09:30:00.000+08:00"
+  }
+}
+```
+
+3. 用户列表
 
 ```text
 GET /api/users?page=1&size=10
@@ -103,17 +160,108 @@ GET /api/users?page=1&size=10
 | keyword | string | 否 | 用户名 / 姓 / 名 / 邮箱模糊查询 |
 | isEnabled | int | 否 | 是否启用：0 否，1 是 |
 | isAdmin | int | 否 | 是否管理员：0 否，1 是 |
-| startTime | string | 否 | 创建开始时间，格式：yyyy-MM-dd HH:mm:ss |
-| endTime | string | 否 | 创建结束时间，格式：yyyy-MM-dd HH:mm:ss |
+| startTime | string | 否 | 创建开始时间，格式：`yyyy-MM-dd HH:mm:ss` |
+| endTime | string | 否 | 创建结束时间，格式：`yyyy-MM-dd HH:mm:ss` |
 
-四、代理模块
+成功响应：`Page<UserVO>`
 
-| 功能 | 方法 | 路径 | 说明 |
-| --- | --- | --- | --- |
-| 代理列表 | GET | /api/agents | 分页查询代理 |
-| 新增代理 | POST | /api/agents | 新增代理 |
-| 编辑代理 | PUT | /api/agents/{id} | 修改代理信息 |
-| 删除代理 | DELETE | /api/agents/{id} | 删除代理 |
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total": 1,
+    "page": 1,
+    "size": 10,
+    "list": [
+      {
+        "id": 1,
+        "username": "admin",
+        "firstName": "系统",
+        "lastName": "管理员",
+        "email": "admin@example.com",
+        "isEnabled": true,
+        "isAdmin": true,
+        "createTime": "2026-01-01T10:00:00.000+08:00",
+        "lastLoginTime": "2026-04-22T09:30:00.000+08:00"
+      }
+    ]
+  }
+}
+```
+
+4. 新增用户
+
+```text
+POST /api/users
+```
+
+请求体：`SysUserDTO`
+
+```json
+{
+  "username": "zhangsan",
+  "firstName": "三",
+  "lastName": "张",
+  "email": "zhangsan@example.com",
+  "password": "123456",
+  "isEnabled": true,
+  "isAdmin": false
+}
+```
+
+成功响应：`UserVO`
+
+```json
+{
+  "code": 200,
+  "message": "添加用户成功",
+  "data": {
+    "id": 2,
+    "username": "zhangsan",
+    "firstName": "三",
+    "lastName": "张",
+    "email": "zhangsan@example.com",
+    "isEnabled": true,
+    "isAdmin": false,
+    "createTime": "2026-04-22T10:00:00.000+08:00",
+    "lastLoginTime": null
+  }
+}
+```
+
+5. 编辑用户
+
+```text
+PUT /api/users/{id}
+```
+
+请求体：`SysUserDTO`
+
+```json
+{
+  "firstName": "三",
+  "lastName": "张",
+  "email": "newemail@example.com",
+  "password": "newpassword",
+  "isEnabled": true,
+  "isAdmin": false
+}
+```
+
+说明：
+
+1. `password` 可选，不传则不修改密码。
+2. 成功响应结构仍为 `UserVO`。
+
+五、代理模块
+
+| 功能 | 方法 | 路径 | 入参 DTO | 出参 VO | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 代理列表 | GET | `/api/agents` | Query 参数 | `Page<AgentVO>` | 分页查询代理 |
+| 新增代理 | POST | `/api/agents` | `AgentDTO` | `AgentVO` | 新增代理 |
+| 编辑代理 | PUT | `/api/agents/{id}` | `AgentDTO` | `AgentVO` | 修改代理信息 |
+| 删除代理 | DELETE | `/api/agents/{id}` | 无 | 通用响应 | 删除代理 |
 
 1. 代理列表
 
@@ -130,17 +278,88 @@ GET /api/agents?page=1&size=10
 | name | string | 否 | 代理名称，模糊查询 |
 | status | int | 否 | 状态：0 禁用，1 启用 |
 
-五、商户模块
+成功响应：`Page<AgentVO>`
 
-| 功能 | 方法 | 路径 | 说明 |
-| --- | --- | --- | --- |
-| 商户列表 | GET | /api/merchants | 分页查询商户，默认不返回已删除商户 |
-| 商户详情 | GET | /api/merchants/{id} | 查询单个商户，已删除商户视为不存在 |
-| 新增商户 | POST | /api/merchants | 新增商户 |
-| 编辑商户 | PUT | /api/merchants/{id} | 修改商户信息 |
-| 删除商户 | DELETE | /api/merchants/{id} | 软删除商户 |
-| 调整余额 | POST | /api/merchants/{id}/balance | 充值 / 提现调整余额 |
-| 导出商户 | GET | /api/merchants/export | 导出 Excel，默认不导出已删除商户 |
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "total": 1,
+    "page": 1,
+    "size": 10,
+    "list": [
+      {
+        "id": 1,
+        "name": "张三",
+        "balance": 100000.00,
+        "status": 1,
+        "totalRechargeAmount": 50000.00,
+        "singleCardFee": 2.00,
+        "rechargeRate": 0.0150,
+        "createTime": "2026-01-01T10:00:00.000+08:00",
+        "merchantCount": 5
+      }
+    ]
+  }
+}
+```
+
+2. 新增代理
+
+```text
+POST /api/agents
+```
+
+请求体：`AgentDTO`
+
+```json
+{
+  "name": "李四",
+  "balance": 0.00,
+  "status": 1,
+  "totalRechargeAmount": 0.00,
+  "singleCardFee": 2.00,
+  "rechargeRate": 0.0150
+}
+```
+
+成功响应：`AgentVO`
+
+3. 编辑代理
+
+```text
+PUT /api/agents/{id}
+```
+
+请求体：`AgentDTO`
+
+```json
+{
+  "name": "李四",
+  "status": 1,
+  "singleCardFee": 2.50,
+  "rechargeRate": 0.0180
+}
+```
+
+说明：
+
+1. 当前代码允许修改 `name`、`status`、`singleCardFee`、`rechargeRate`。
+2. 如果传入 `balance` 或 `totalRechargeAmount`，当前实现也会更新。
+3. 成功响应结构为 `AgentVO`。
+
+六、商户模块
+
+| 功能 | 方法 | 路径 | 入参 DTO | 出参 VO | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| 商户列表 | GET | `/api/merchants` | Query 参数 | `Page<MerchantVO>` | 分页查询商户，默认不返回已删除商户 |
+| 商户详情 | GET | `/api/merchants/{id}` | 无 | `MerchantVO` | 查询单个商户，已删除商户视为不存在 |
+| 新增商户 | POST | `/api/merchants` | `MerchantDTO` | `MerchantVO` | 新增商户 |
+| 编辑商户 | PUT | `/api/merchants/{id}` | `MerchantDTO` | `MerchantVO` | 修改商户信息 |
+| 删除商户 | DELETE | `/api/merchants/{id}` | 无 | 通用响应 | 软删除商户 |
+| 调整余额 | POST | `/api/merchants/{id}/balance` | `MerchantBalanceDTO` | `MerchantBalanceVO` | 充值 / 提现调整余额 |
+| 导出商户 | GET | `/api/merchants/export` | Query 参数 | Excel 文件 | 默认不导出已删除商户 |
 
 1. 商户列表
 
@@ -156,13 +375,13 @@ GET /api/merchants?page=1&size=10
 | size | int | 否 | 每页条数，默认 10 |
 | merchantNo | string | 否 | 商户号，精确匹配 |
 | name | string | 否 | 商户名称，模糊匹配 |
-| merchantType | string | 否 | 商户类型，枚举字符串：WHITE / REFUND |
+| merchantType | string | 否 | 商户类型，枚举字符串：`WHITE` / `REFUND` |
 | agentId | long | 否 | 代理 ID |
 | accountStatus | int | 否 | 账号状态：0 禁用，1 正常，2 删除；不传时默认排除删除数据 |
 | fundFreeze | int | 否 | 资金冻结：0 未冻结，1 冻结 |
 | negativeBalance | int | 否 | 是否筛选负余额：1 是 |
 
-响应示例：
+成功响应：`Page<MerchantVO>`
 
 ```json
 {
@@ -178,9 +397,12 @@ GET /api/merchants?page=1&size=10
         "merchantNo": "M10001",
         "name": "A商户",
         "merchantType": "WHITE",
+        "merchantTypeDescription": "白量",
         "agentId": 1,
+        "agentName": "张三",
         "loginAccount": "merchant01",
         "accountStatus": 1,
+        "accountStatusDescription": "正常",
         "fundFreeze": false,
         "currentBalance": 5000.00,
         "cardCount": 3,
@@ -198,27 +420,28 @@ GET /api/merchants?page=1&size=10
 GET /api/merchants/{id}
 ```
 
-响应示例：
+成功响应：`MerchantVO`
 
 ```json
 {
   "code": 200,
   "message": "success",
   "data": {
-    "merchant": {
-      "id": 1,
-      "merchantNo": "M10001",
-      "name": "A商户",
-      "merchantType": "WHITE",
-      "agentId": 1,
-      "loginAccount": "merchant01",
-      "accountStatus": 1,
-      "fundFreeze": false,
-      "currentBalance": 5000.00,
-      "cardCount": 3,
-      "cardBalance": 3000.00,
-      "createTime": "2026-01-01T10:00:00.000+08:00"
-    }
+    "id": 1,
+    "merchantNo": "M10001",
+    "name": "A商户",
+    "merchantType": "WHITE",
+    "merchantTypeDescription": "白量",
+    "agentId": 1,
+    "agentName": "张三",
+    "loginAccount": "merchant01",
+    "accountStatus": 1,
+    "accountStatusDescription": "正常",
+    "fundFreeze": false,
+    "currentBalance": 5000.00,
+    "cardCount": 3,
+    "cardBalance": 3000.00,
+    "createTime": "2026-01-01T10:00:00.000+08:00"
   }
 }
 ```
@@ -229,7 +452,7 @@ GET /api/merchants/{id}
 POST /api/merchants
 ```
 
-请求体：
+请求体：`MerchantDTO`
 
 ```json
 {
@@ -247,8 +470,9 @@ POST /api/merchants
 说明：
 
 1. `merchantType` 使用枚举字符串，按代码实现存储为 `WHITE` 或 `REFUND`。
-2. `loginPassword` 按代码实现会使用 BCrypt 加密后存库，不保存明文。
+2. `loginPassword` 会使用 BCrypt 加密后存库，不保存明文。
 3. `currentBalance`、`cardCount`、`cardBalance` 由系统初始化，新增接口不接收这三个字段。
+4. 成功响应结构为 `MerchantVO`。
 
 4. 编辑商户
 
@@ -256,13 +480,14 @@ POST /api/merchants
 PUT /api/merchants/{id}
 ```
 
-请求体：
+请求体：`MerchantDTO`
 
 ```json
 {
   "name": "B商户-新名称",
   "merchantType": "REFUND",
   "loginAccount": "merchant02_new",
+  "loginPassword": "654321",
   "accountStatus": 1,
   "fundFreeze": true
 }
@@ -273,6 +498,7 @@ PUT /api/merchants/{id}
 1. 当前代码允许修改 `name`、`merchantType`、`loginAccount`、`loginPassword`、`accountStatus`、`fundFreeze`。
 2. 如果传入新的 `loginPassword`，系统会重新使用 BCrypt 加密后保存。
 3. 已删除商户不允许再编辑。
+4. 成功响应结构为 `MerchantVO`。
 
 5. 删除商户
 
@@ -292,7 +518,7 @@ DELETE /api/merchants/{id}
 POST /api/merchants/{id}/balance
 ```
 
-请求体：
+请求体：`MerchantBalanceDTO`
 
 ```json
 {
@@ -309,7 +535,7 @@ POST /api/merchants/{id}/balance
 | recharge | 充值，增加余额 |
 | withdraw | 提现，减少余额 |
 
-响应示例：
+成功响应：`MerchantBalanceVO`
 
 ```json
 {
@@ -353,7 +579,7 @@ Content-Disposition: attachment; filename=merchants_<timestamp>.xlsx
 4. 代理ID
 5. 账号状态
 
-六、状态值说明
+七、状态值说明
 
 1. 商户账号状态 `account_status`
 

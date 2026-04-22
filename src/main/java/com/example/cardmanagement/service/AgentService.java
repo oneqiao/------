@@ -1,8 +1,10 @@
 package com.example.cardmanagement.service;
 
+import com.example.cardmanagement.dto.AgentDTO;
 import com.example.cardmanagement.entity.Agent;
 import com.example.cardmanagement.repository.AgentRepository;
 import com.example.cardmanagement.repository.MerchantRepository;
+import com.example.cardmanagement.vo.AgentVO;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,13 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 代理服务类
- * 处理代理相关的业务逻辑
+ * 代理服务类。
  */
 @Service
 public class AgentService {
@@ -33,11 +32,11 @@ public class AgentService {
     }
 
     /**
-     * 分页查询代理列表
+     * 分页查询代理列表。
      */
     @Transactional(readOnly = true)
     @NonNull
-    public Page<Map<String, Object>> getAgentList(@NonNull Pageable pageable, String name, Integer status) {
+    public Page<AgentVO> getAgentList(@NonNull Pageable pageable, String name, Integer status) {
         Specification<Agent> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -52,79 +51,65 @@ public class AgentService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        Page<Agent> agents = agentRepository.findAll(spec, pageable);
-
-        return agents.map(agent -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", agent.getId());
-            map.put("name", agent.getName());
-            map.put("balance", agent.getBalance());
-            map.put("status", agent.getStatus());
-            map.put("totalRechargeAmount", agent.getTotalRechargeAmount());
-            map.put("singleCardFee", agent.getSingleCardFee());
-            map.put("rechargeRate", agent.getRechargeRate());
-            map.put("createTime", agent.getCreateTime());
-            map.put("merchantCount", merchantRepository.countByAgentId(agent.getId()));
-            return map;
-        });
+        return agentRepository.findAll(spec, pageable).map(this::toAgentVO);
     }
 
     /**
-     * 新增代理
+     * 新增代理。
      */
     @Transactional
     @NonNull
-    public Agent addAgent(@NonNull Agent agent) {
-        if (agent.getName() == null || agent.getName().trim().isEmpty()) {
+    public AgentVO addAgent(@NonNull AgentDTO agentDTO) {
+        if (agentDTO.getName() == null || agentDTO.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("代理名称不能为空");
         }
 
-        if (agent.getBalance() == null) {
-            agent.setBalance(BigDecimal.ZERO);
-        }
-        if (agent.getStatus() == null) {
-            agent.setStatus(1);
-        }
-        if (agent.getTotalRechargeAmount() == null) {
-            agent.setTotalRechargeAmount(BigDecimal.ZERO);
-        }
-        if (agent.getSingleCardFee() == null) {
-            agent.setSingleCardFee(BigDecimal.ZERO);
-        }
-        if (agent.getRechargeRate() == null) {
-            agent.setRechargeRate(BigDecimal.ZERO);
-        }
+        Agent agent = new Agent();
+        agent.setName(agentDTO.getName().trim());
+        agent.setBalance(agentDTO.getBalance() != null ? agentDTO.getBalance() : BigDecimal.ZERO);
+        agent.setStatus(agentDTO.getStatus() != null ? agentDTO.getStatus() : 1);
+        agent.setTotalRechargeAmount(
+                agentDTO.getTotalRechargeAmount() != null ? agentDTO.getTotalRechargeAmount() : BigDecimal.ZERO
+        );
+        agent.setSingleCardFee(agentDTO.getSingleCardFee() != null ? agentDTO.getSingleCardFee() : BigDecimal.ZERO);
+        agent.setRechargeRate(agentDTO.getRechargeRate() != null ? agentDTO.getRechargeRate() : BigDecimal.ZERO);
 
-        return agentRepository.save(agent);
+        return toAgentVO(agentRepository.save(agent));
     }
 
     /**
-     * 编辑代理
+     * 编辑代理。
      */
     @Transactional
     @NonNull
-    public Agent updateAgent(@NonNull Long id, @NonNull Agent agent) {
+    public AgentVO updateAgent(@NonNull Long id, @NonNull AgentDTO agentDTO) {
         Agent existingAgent = agentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("代理不存在"));
 
-        if (agent.getName() != null && !agent.getName().trim().isEmpty()) {
-            existingAgent.setName(agent.getName().trim());
+        if (agentDTO.getName() != null && !agentDTO.getName().trim().isEmpty()) {
+            existingAgent.setName(agentDTO.getName().trim());
         }
-        if (agent.getStatus() != null) {
-            existingAgent.setStatus(agent.getStatus());
+        if (agentDTO.getStatus() != null) {
+            existingAgent.setStatus(agentDTO.getStatus());
         }
-        if (agent.getSingleCardFee() != null) {
-            existingAgent.setSingleCardFee(agent.getSingleCardFee());
+        if (agentDTO.getSingleCardFee() != null) {
+            existingAgent.setSingleCardFee(agentDTO.getSingleCardFee());
         }
-        if (agent.getRechargeRate() != null) {
-            existingAgent.setRechargeRate(agent.getRechargeRate());
+        if (agentDTO.getRechargeRate() != null) {
+            existingAgent.setRechargeRate(agentDTO.getRechargeRate());
+        }
+        if (agentDTO.getBalance() != null) {
+            existingAgent.setBalance(agentDTO.getBalance());
+        }
+        if (agentDTO.getTotalRechargeAmount() != null) {
+            existingAgent.setTotalRechargeAmount(agentDTO.getTotalRechargeAmount());
         }
 
-        return agentRepository.save(existingAgent);
+        return toAgentVO(agentRepository.save(existingAgent));
     }
 
     /**
-     * 删除代理
+     * 删除代理。
      */
     @Transactional
     public void deleteAgent(@NonNull Long id) {
@@ -138,5 +123,19 @@ public class AgentService {
         }
 
         agentRepository.deleteById(id);
+    }
+
+    private AgentVO toAgentVO(Agent agent) {
+        AgentVO agentVO = new AgentVO();
+        agentVO.setId(agent.getId());
+        agentVO.setName(agent.getName());
+        agentVO.setBalance(agent.getBalance());
+        agentVO.setStatus(agent.getStatus());
+        agentVO.setTotalRechargeAmount(agent.getTotalRechargeAmount());
+        agentVO.setSingleCardFee(agent.getSingleCardFee());
+        agentVO.setRechargeRate(agent.getRechargeRate());
+        agentVO.setCreateTime(agent.getCreateTime());
+        agentVO.setMerchantCount(merchantRepository.countByAgentId(agent.getId()));
+        return agentVO;
     }
 }

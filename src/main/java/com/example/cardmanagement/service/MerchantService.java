@@ -1,9 +1,12 @@
 package com.example.cardmanagement.service;
 
+import com.example.cardmanagement.dto.MerchantBalanceDTO;
 import com.example.cardmanagement.dto.MerchantDTO;
 import com.example.cardmanagement.entity.Merchant;
 import com.example.cardmanagement.enums.MerchantType;
 import com.example.cardmanagement.repository.MerchantRepository;
+import com.example.cardmanagement.vo.MerchantBalanceVO;
+import com.example.cardmanagement.vo.MerchantVO;
 import jakarta.persistence.criteria.Predicate;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -21,9 +24,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 商户服务类。
@@ -47,25 +48,25 @@ public class MerchantService {
      * 默认不查询已软删除的商户；如果显式传入 accountStatus，则按传入值过滤。
      */
     @Transactional(readOnly = true)
-    public Page<Merchant> getMerchantList(Pageable pageable,
-                                          String merchantNo,
-                                          String name,
-                                          String merchantType,
-                                          Long agentId,
-                                          Integer accountStatus,
-                                          Integer fundFreeze,
-                                          Integer negativeBalance) {
+    public Page<MerchantVO> getMerchantList(Pageable pageable,
+                                            String merchantNo,
+                                            String name,
+                                            String merchantType,
+                                            Long agentId,
+                                            Integer accountStatus,
+                                            Integer fundFreeze,
+                                            Integer negativeBalance) {
         return merchantRepository.findAll(
                 buildMerchantSpecification(merchantNo, name, merchantType, agentId, accountStatus, fundFreeze, negativeBalance),
                 pageable
-        );
+        ).map(this::toMerchantVO);
     }
 
     /**
      * 新增商户。
      */
     @Transactional
-    public Merchant addMerchant(MerchantDTO merchantDTO) {
+    public MerchantVO addMerchant(MerchantDTO merchantDTO) {
         if (merchantDTO.getMerchantNo() == null || merchantDTO.getMerchantNo().trim().isEmpty()) {
             throw new IllegalArgumentException("商户号不能为空");
         }
@@ -98,14 +99,14 @@ public class MerchantService {
         merchant.setCardBalance(BigDecimal.ZERO);
         merchant.setCreateTime(new Date());
 
-        return merchantRepository.save(merchant);
+        return toMerchantVO(merchantRepository.save(merchant));
     }
 
     /**
      * 编辑商户。
      */
     @Transactional
-    public Merchant updateMerchant(Long id, MerchantDTO merchantDTO) {
+    public MerchantVO updateMerchant(Long id, MerchantDTO merchantDTO) {
         Merchant existingMerchant = getActiveMerchant(id);
 
         if (merchantDTO.getName() != null && !merchantDTO.getName().trim().isEmpty()) {
@@ -127,7 +128,7 @@ public class MerchantService {
             existingMerchant.setFundFreeze(merchantDTO.getFundFreeze());
         }
 
-        return merchantRepository.save(existingMerchant);
+        return toMerchantVO(merchantRepository.save(existingMerchant));
     }
 
     /**
@@ -145,22 +146,29 @@ public class MerchantService {
      * 查询商户详情。
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getMerchantDetail(Long id) {
-        Merchant merchant = getActiveMerchant(id);
-        Map<String, Object> result = new HashMap<>();
-        result.put("merchant", merchant);
-        return result;
+    public MerchantVO getMerchantDetail(Long id) {
+        return toMerchantVO(getActiveMerchant(id));
     }
 
     /**
      * 调整商户余额。
      */
     @Transactional
-    public Map<String, Object> adjustBalance(Long id, String type, BigDecimal amount, String reason) {
+    public MerchantBalanceVO adjustBalance(Long id, MerchantBalanceDTO balanceDTO) {
+        if (balanceDTO == null) {
+            throw new IllegalArgumentException("请求体不能为空");
+        }
+
         Merchant merchant = getActiveMerchant(id);
+        String type = balanceDTO.getType();
+        BigDecimal amount = balanceDTO.getAmount();
+        String reason = balanceDTO.getReason() == null ? "" : balanceDTO.getReason().trim();
 
         if (merchant.getFundFreeze()) {
             throw new IllegalArgumentException("商户资金已冻结，无法调整余额");
+        }
+        if (type == null || type.trim().isEmpty()) {
+            throw new IllegalArgumentException("type 不能为空");
         }
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("调整金额必须大于 0");
@@ -183,17 +191,16 @@ public class MerchantService {
         merchant.setCurrentBalance(newBalance);
         merchantRepository.save(merchant);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("oldBalance", currentBalance);
-        result.put("newBalance", newBalance);
-        result.put("changeAmount", amount);
-        result.put("reason", reason);
-        return result;
+        MerchantBalanceVO balanceVO = new MerchantBalanceVO();
+        balanceVO.setOldBalance(currentBalance);
+        balanceVO.setNewBalance(newBalance);
+        balanceVO.setChangeAmount(amount);
+        balanceVO.setReason(reason);
+        return balanceVO;
     }
 
     /**
      * 导出商户列表。
-     * 默认不导出已软删除的商户；如果显式传入 accountStatus，则按传入值过滤。
      */
     @Transactional(readOnly = true)
     public byte[] exportMerchants(String merchantNo,
@@ -283,6 +290,41 @@ public class MerchantService {
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private MerchantVO toMerchantVO(Merchant merchant) {
+        MerchantVO merchantVO = new MerchantVO();
+        merchantVO.setId(merchant.getId());
+        merchantVO.setMerchantNo(merchant.getMerchantNo());
+        merchantVO.setName(merchant.getName());
+        merchantVO.setMerchantType(merchant.getMerchantType() == null ? null : merchant.getMerchantType().name());
+        merchantVO.setMerchantTypeDescription(
+                merchant.getMerchantType() == null ? null : merchant.getMerchantType().getDescription()
+        );
+        merchantVO.setAgentId(merchant.getAgentId());
+        merchantVO.setAgentName(merchant.getAgent() == null ? null : merchant.getAgent().getName());
+        merchantVO.setLoginAccount(merchant.getLoginAccount());
+        merchantVO.setAccountStatus(merchant.getAccountStatus());
+        merchantVO.setAccountStatusDescription(getAccountStatusDescription(merchant.getAccountStatus()));
+        merchantVO.setFundFreeze(merchant.getFundFreeze());
+        merchantVO.setCurrentBalance(merchant.getCurrentBalance());
+        merchantVO.setCardCount(merchant.getCardCount());
+        merchantVO.setCardBalance(merchant.getCardBalance());
+        merchantVO.setCreateTime(merchant.getCreateTime());
+        return merchantVO;
+    }
+
+    private String getAccountStatusDescription(Integer accountStatus) {
+        if (accountStatus == null) {
+            return null;
+        }
+
+        return switch (accountStatus) {
+            case 0 -> "禁用";
+            case 1 -> "正常";
+            case 2 -> "删除";
+            default -> "未知";
         };
     }
 }

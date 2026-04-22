@@ -1,6 +1,6 @@
 package com.example.cardmanagement.controller;
 
-import com.example.cardmanagement.entity.SysUser;
+import com.example.cardmanagement.dto.SysUserDTO;
 import com.example.cardmanagement.service.UserService;
 import com.example.cardmanagement.util.PageUtil;
 import com.example.cardmanagement.util.Response;
@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 
 /**
- * 用户控制器
- * 处理用户管理相关的接口
+ * 用户控制器。
  */
 @RestController
 @RequestMapping("/api/users")
@@ -25,7 +24,7 @@ public class UserController {
     }
 
     /**
-     * 分页查询用户列表
+     * 分页查询用户列表。
      */
     @GetMapping
     public Response getUserList(@RequestParam(defaultValue = "1") int page,
@@ -40,8 +39,7 @@ public class UserController {
         try {
             Pageable pageable = PageUtil.createPageable(page, size);
             var users = userService.getUserList(pageable, keyword, isEnabled, isAdmin, startTime, endTime);
-            var response = PageUtil.buildPageResponse(users);
-            return Response.success(response);
+            return Response.success(PageUtil.buildPageResponse(users));
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -50,17 +48,16 @@ public class UserController {
     }
 
     /**
-     * 添加用户
+     * 添加用户。
      */
     @PostMapping
-    public Response addUser(@RequestBody SysUser user) {
-        if (user == null) {
+    public Response addUser(@RequestBody SysUserDTO userDTO) {
+        if (userDTO == null) {
             return Response.error(400, "请求体不能为空");
         }
 
         try {
-            SysUser savedUser = userService.addUser(user);
-            return Response.success("添加用户成功", savedUser);
+            return Response.success("添加用户成功", userService.addUser(userDTO));
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -69,29 +66,25 @@ public class UserController {
     }
 
     /**
-     * 编辑用户
+     * 编辑用户。
      */
     @PutMapping("/{id}")
-    public Response updateUser(@PathVariable Long id, @RequestBody SysUser user) {
-        if (user == null) {
+    public Response updateUser(@PathVariable Long id, @RequestBody SysUserDTO userDTO) {
+        if (userDTO == null) {
             return Response.error(400, "请求体不能为空");
         }
 
         try {
-            // 调用业务层的更新方法
-            SysUser updatedUser = userService.updateUser(id, user);
-            return Response.success("编辑用户成功", updatedUser);
+            return Response.success("编辑用户成功", userService.updateUser(id, userDTO));
         } catch (IllegalArgumentException e) {
-            return Response.error(400, e.getMessage());  // 捕获业务异常
+            return Response.error(400, e.getMessage());
         } catch (Exception e) {
-            // 打印错误信息帮助追踪问题
-            e.printStackTrace();
-            return Response.error(500, "编辑用户失败: " + e.getMessage());  // 捕获其他异常
+            return Response.error(500, "编辑用户失败: " + e.getMessage());
         }
     }
 
     /**
-     * 删除用户
+     * 删除用户。
      */
     @DeleteMapping("/{id}")
     public Response deleteUser(@PathVariable Long id) {

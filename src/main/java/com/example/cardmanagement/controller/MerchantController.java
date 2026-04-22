@@ -1,5 +1,6 @@
 package com.example.cardmanagement.controller;
 
+import com.example.cardmanagement.dto.MerchantBalanceDTO;
 import com.example.cardmanagement.dto.MerchantDTO;
 import com.example.cardmanagement.service.MerchantService;
 import com.example.cardmanagement.util.PageUtil;
@@ -11,8 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Map;
 
 /**
  * 商户管理控制器。
@@ -29,7 +28,6 @@ public class MerchantController {
 
     /**
      * 分页查询商户列表。
-     * 默认不返回已软删除的商户。
      */
     @GetMapping
     public Response getMerchantList(@RequestParam(defaultValue = "1") int page,
@@ -123,27 +121,13 @@ public class MerchantController {
      * 调整商户余额。
      */
     @PostMapping("/{id}/balance")
-    public Response adjustBalance(@PathVariable Long id, @RequestBody Map<String, Object> balanceData) {
-        if (balanceData == null) {
+    public Response adjustBalance(@PathVariable Long id, @RequestBody MerchantBalanceDTO balanceDTO) {
+        if (balanceDTO == null) {
             return Response.error(400, "请求体不能为空");
         }
 
         try {
-            Object typeObj = balanceData.get("type");
-            Object amountObj = balanceData.get("amount");
-            Object reasonObj = balanceData.get("reason");
-
-            if (typeObj == null || amountObj == null) {
-                return Response.error(400, "type 和 amount 不能为空");
-            }
-
-            String type = String.valueOf(typeObj);
-            BigDecimal amount = new BigDecimal(String.valueOf(amountObj));
-            String reason = reasonObj == null ? "" : String.valueOf(reasonObj);
-
-            return Response.success("调整成功", merchantService.adjustBalance(id, type, amount, reason));
-        } catch (NumberFormatException e) {
-            return Response.error(400, "amount 格式不正确");
+            return Response.success("调整成功", merchantService.adjustBalance(id, balanceDTO));
         } catch (IllegalArgumentException e) {
             return Response.error(400, e.getMessage());
         } catch (Exception e) {
@@ -153,7 +137,6 @@ public class MerchantController {
 
     /**
      * 导出商户列表为 Excel。
-     * 默认不导出已软删除的商户。
      */
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportMerchants(@RequestParam(required = false) String merchantNo,

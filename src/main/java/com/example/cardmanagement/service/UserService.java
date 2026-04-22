@@ -1,9 +1,11 @@
 package com.example.cardmanagement.service;
 
+import com.example.cardmanagement.dto.SysUserDTO;
 import com.example.cardmanagement.entity.SysUser;
 import com.example.cardmanagement.repository.SysUserRepository;
 import com.example.cardmanagement.util.JwtUtil;
 import com.example.cardmanagement.vo.LoginVO;
+import com.example.cardmanagement.vo.UserVO;
 import jakarta.persistence.criteria.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 用户服务类
- * 处理用户相关的业务逻辑
+ * 用户服务类。
  */
 @Service
 @Transactional(readOnly = true)
@@ -42,11 +43,7 @@ public class UserService {
     }
 
     /**
-     * 用户登录
-     *
-     * @param username 用户名
-     * @param password 密码
-     * @return 包含 token 和用户信息的对象
+     * 用户登录。
      */
     @Transactional
     @NonNull
@@ -71,8 +68,7 @@ public class UserService {
             throw new IllegalArgumentException("用户已被禁用");
         }
 
-        boolean passwordMatch = passwordEncoder.matches(trimPassword, user.getPassword());
-        if (!passwordMatch) {
+        if (!passwordEncoder.matches(trimPassword, user.getPassword())) {
             logger.warn("Password mismatch for user: {}", trimUsername);
             throw new IllegalArgumentException("用户名或密码错误");
         }
@@ -80,44 +76,32 @@ public class UserService {
         user.setLastLoginTime(new Date());
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(trimUsername);
-
         LoginVO loginVO = new LoginVO();
-        loginVO.setToken(token);
-        loginVO.setUserInfo(user);
+        loginVO.setToken(jwtUtil.generateToken(trimUsername));
+        loginVO.setUserInfo(toUserVO(user));
 
         logger.info("Login successful for user: {}", trimUsername);
         return loginVO;
     }
 
     /**
-     * 获取当前用户信息
-     *
-     * @param username 用户名
-     * @return 用户对象
+     * 获取当前用户信息。
      */
-    public SysUser getCurrentUser(@NonNull String username) {
-        return userRepository.findByUsername(username.trim());
+    public UserVO getCurrentUser(@NonNull String username) {
+        SysUser user = userRepository.findByUsername(username.trim());
+        return user == null ? null : toUserVO(user);
     }
 
     /**
-     * 分页查询用户列表
-     *
-     * @param pageable  分页参数
-     * @param keyword   关键词
-     * @param isEnabled 是否启用
-     * @param isAdmin   是否管理员
-     * @param startTime 开始时间
-     * @param endTime   结束时间
-     * @return 分页用户列表
+     * 分页查询用户列表。
      */
     @NonNull
-    public Page<SysUser> getUserList(@NonNull Pageable pageable,
-                                     String keyword,
-                                     Integer isEnabled,
-                                     Integer isAdmin,
-                                     Date startTime,
-                                     Date endTime) {
+    public Page<UserVO> getUserList(@NonNull Pageable pageable,
+                                    String keyword,
+                                    Integer isEnabled,
+                                    Integer isAdmin,
+                                    Date startTime,
+                                    Date endTime) {
         Specification<SysUser> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -150,63 +134,52 @@ public class UserService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return userRepository.findAll(spec, pageable);
+        return userRepository.findAll(spec, pageable).map(this::toUserVO);
     }
 
     /**
-     * 添加用户
-     *
-     * @param user 用户对象
-     * @return 保存后的用户对象
+     * 添加用户。
      */
     @Transactional
     @NonNull
-    public SysUser addUser(@NonNull SysUser user) {
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+    public UserVO addUser(@NonNull SysUserDTO userDTO) {
+        if (userDTO.getUsername() == null || userDTO.getUsername().trim().isEmpty()) {
             throw new IllegalArgumentException("用户名不能为空");
         }
 
-        if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+        if (userDTO.getPassword() == null || userDTO.getPassword().trim().isEmpty()) {
             throw new IllegalArgumentException("密码不能为空");
         }
 
-        String username = user.getUsername().trim();
-
+        String username = userDTO.getUsername().trim();
         if (userRepository.findByUsername(username) != null) {
             throw new IllegalArgumentException("用户名已存在");
         }
 
+        SysUser user = new SysUser();
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(user.getPassword().trim()));
+        user.setFirstName(trimToNull(userDTO.getFirstName()));
+        user.setLastName(trimToNull(userDTO.getLastName()));
+        user.setEmail(trimToNull(userDTO.getEmail()));
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword().trim()));
+        user.setIsEnabled(userDTO.getIsEnabled() != null ? userDTO.getIsEnabled() : true);
+        user.setIsAdmin(userDTO.getIsAdmin() != null ? userDTO.getIsAdmin() : false);
+        user.setCreateTime(new Date());
 
-        if (user.getIsEnabled() == null) {
-            user.setIsEnabled(true);
-        }
-        if (user.getIsAdmin() == null) {
-            user.setIsAdmin(false);
-        }
-        if (user.getCreateTime() == null) {
-            user.setCreateTime(new Date());
-        }
-
-        return userRepository.save(user);
+        return toUserVO(userRepository.save(user));
     }
 
     /**
-     * 编辑用户
-     *
-     * @param id   用户ID
-     * @param user 用户对象
-     * @return 更新后的用户对象
+     * 编辑用户。
      */
     @Transactional
     @NonNull
-    public SysUser updateUser(@NonNull Long id, @NonNull SysUser user) {
+    public UserVO updateUser(@NonNull Long id, @NonNull SysUserDTO userDTO) {
         SysUser existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("用户不存在"));
 
-        if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
-            String newUsername = user.getUsername().trim();
+        if (userDTO.getUsername() != null && !userDTO.getUsername().trim().isEmpty()) {
+            String newUsername = userDTO.getUsername().trim();
             SysUser sameUser = userRepository.findByUsername(newUsername);
             if (sameUser != null && !sameUser.getId().equals(existingUser.getId())) {
                 throw new IllegalArgumentException("用户名已存在");
@@ -214,32 +187,30 @@ public class UserService {
             existingUser.setUsername(newUsername);
         }
 
-        if (user.getFirstName() != null) {
-            existingUser.setFirstName(user.getFirstName().trim());
+        if (userDTO.getFirstName() != null) {
+            existingUser.setFirstName(trimToNull(userDTO.getFirstName()));
         }
-        if (user.getLastName() != null) {
-            existingUser.setLastName(user.getLastName().trim());
+        if (userDTO.getLastName() != null) {
+            existingUser.setLastName(trimToNull(userDTO.getLastName()));
         }
-        if (user.getEmail() != null) {
-            existingUser.setEmail(user.getEmail().trim());
+        if (userDTO.getEmail() != null) {
+            existingUser.setEmail(trimToNull(userDTO.getEmail()));
         }
-        if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
-            existingUser.setPassword(passwordEncoder.encode(user.getPassword().trim()));
+        if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword().trim()));
         }
-        if (user.getIsEnabled() != null) {
-            existingUser.setIsEnabled(user.getIsEnabled());
+        if (userDTO.getIsEnabled() != null) {
+            existingUser.setIsEnabled(userDTO.getIsEnabled());
         }
-        if (user.getIsAdmin() != null) {
-            existingUser.setIsAdmin(user.getIsAdmin());
+        if (userDTO.getIsAdmin() != null) {
+            existingUser.setIsAdmin(userDTO.getIsAdmin());
         }
 
-        return userRepository.save(existingUser);
+        return toUserVO(userRepository.save(existingUser));
     }
 
     /**
-     * 删除用户
-     *
-     * @param id 用户ID
+     * 删除用户。
      */
     @Transactional
     public void deleteUser(@NonNull Long id) {
@@ -248,5 +219,27 @@ public class UserService {
         }
 
         userRepository.deleteById(id);
+    }
+
+    private UserVO toUserVO(SysUser user) {
+        UserVO userVO = new UserVO();
+        userVO.setId(user.getId());
+        userVO.setUsername(user.getUsername());
+        userVO.setFirstName(user.getFirstName());
+        userVO.setLastName(user.getLastName());
+        userVO.setEmail(user.getEmail());
+        userVO.setIsEnabled(user.getIsEnabled());
+        userVO.setIsAdmin(user.getIsAdmin());
+        userVO.setCreateTime(user.getCreateTime());
+        userVO.setLastLoginTime(user.getLastLoginTime());
+        return userVO;
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

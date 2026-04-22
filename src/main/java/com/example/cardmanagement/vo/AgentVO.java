@@ -6,8 +6,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 代理VO类
- * 用于代理数据的显示和响应
+ * 代理响应 VO。
  */
 @Data
 public class AgentVO {
