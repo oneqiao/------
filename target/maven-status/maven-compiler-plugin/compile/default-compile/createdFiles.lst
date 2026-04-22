@@ -5,6 +5,7 @@ com\example\cardmanagement\config\JwtFilter.class
 com\example\cardmanagement\repository\MerchantRepository.class
 com\example\cardmanagement\vo\LoginVO.class
 com\example\cardmanagement\service\MerchantService.class
+com\example\cardmanagement\dto\MerchantBalanceDTO.class
 com\example\cardmanagement\util\ExportUtil.class
 com\example\cardmanagement\entity\SysUser.class
 com\example\cardmanagement\entity\Agent.class
@@ -25,9 +26,11 @@ com\example\cardmanagement\CardManagementApplication.class
 com\example\cardmanagement\util\JwtUtil.class
 com\example\cardmanagement\entity\Merchant.class
 com\example\cardmanagement\vo\AgentVO.class
+com\example\cardmanagement\vo\UserVO.class
 com\example\cardmanagement\entity\MerchantCard.class
 com\example\cardmanagement\dto\LoginDTO.class
 com\example\cardmanagement\service\AgentService.class
 com\example\cardmanagement\controller\AuthController.class
 com\example\cardmanagement\dto\MerchantCardDTO.class
 com\example\cardmanagement\util\Response.class
+com\example\cardmanagement\vo\MerchantBalanceVO.class

@@ -2,8 +2,10 @@ package com.example.cardmanagement.service;
 
 import com.example.cardmanagement.dto.MerchantBalanceDTO;
 import com.example.cardmanagement.dto.MerchantDTO;
+import com.example.cardmanagement.entity.Agent;
 import com.example.cardmanagement.entity.Merchant;
 import com.example.cardmanagement.enums.MerchantType;
+import com.example.cardmanagement.repository.AgentRepository;
 import com.example.cardmanagement.repository.MerchantRepository;
 import com.example.cardmanagement.vo.MerchantBalanceVO;
 import com.example.cardmanagement.vo.MerchantVO;
@@ -34,11 +36,14 @@ public class MerchantService {
 
     private static final int DELETED_STATUS = 2;
 
+    private final AgentRepository agentRepository;
     private final MerchantRepository merchantRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public MerchantService(MerchantRepository merchantRepository,
+    public MerchantService(AgentRepository agentRepository,
+                           MerchantRepository merchantRepository,
                            PasswordEncoder passwordEncoder) {
+        this.agentRepository = agentRepository;
         this.merchantRepository = merchantRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -89,7 +94,7 @@ public class MerchantService {
         merchant.setMerchantNo(merchantNo);
         merchant.setName(merchantDTO.getName().trim());
         merchant.setMerchantType(MerchantType.fromValue(merchantDTO.getMerchantType()));
-        merchant.setAgentId(merchantDTO.getAgentId());
+        merchant.setAgent(resolveAgent(merchantDTO.getAgentId()));
         merchant.setLoginAccount(merchantDTO.getLoginAccount().trim());
         merchant.setLoginPassword(passwordEncoder.encode(merchantDTO.getLoginPassword().trim()));
         merchant.setAccountStatus(merchantDTO.getAccountStatus() != null ? merchantDTO.getAccountStatus() : 1);
@@ -114,6 +119,9 @@ public class MerchantService {
         }
         if (merchantDTO.getMerchantType() != null && !merchantDTO.getMerchantType().trim().isEmpty()) {
             existingMerchant.setMerchantType(MerchantType.fromValue(merchantDTO.getMerchantType()));
+        }
+        if (merchantDTO.getAgentId() != null) {
+            existingMerchant.setAgent(resolveAgent(merchantDTO.getAgentId()));
         }
         if (merchantDTO.getLoginAccount() != null && !merchantDTO.getLoginAccount().trim().isEmpty()) {
             existingMerchant.setLoginAccount(merchantDTO.getLoginAccount().trim());
@@ -231,10 +239,11 @@ public class MerchantService {
                 row.createCell(0).setCellValue(merchant.getMerchantNo());
                 row.createCell(1).setCellValue(merchant.getName());
                 row.createCell(2).setCellValue(merchant.getMerchantType().name());
-                if (merchant.getAgentId() == null) {
+                Long resolvedAgentId = resolveAgentId(merchant);
+                if (resolvedAgentId == null) {
                     row.createCell(3).setCellValue("");
                 } else {
-                    row.createCell(3).setCellValue(merchant.getAgentId());
+                    row.createCell(3).setCellValue(resolvedAgentId);
                 }
                 row.createCell(4).setCellValue(merchant.getAccountStatus());
             }
@@ -275,7 +284,7 @@ public class MerchantService {
                 predicates.add(cb.equal(root.get("merchantType"), MerchantType.fromValue(merchantType)));
             }
             if (agentId != null) {
-                predicates.add(cb.equal(root.get("agentId"), agentId));
+                predicates.add(cb.equal(root.get("agent").get("id"), agentId));
             }
             if (accountStatus != null) {
                 predicates.add(cb.equal(root.get("accountStatus"), accountStatus));
@@ -302,7 +311,7 @@ public class MerchantService {
         merchantVO.setMerchantTypeDescription(
                 merchant.getMerchantType() == null ? null : merchant.getMerchantType().getDescription()
         );
-        merchantVO.setAgentId(merchant.getAgentId());
+        merchantVO.setAgentId(resolveAgentId(merchant));
         merchantVO.setAgentName(merchant.getAgent() == null ? null : merchant.getAgent().getName());
         merchantVO.setLoginAccount(merchant.getLoginAccount());
         merchantVO.setAccountStatus(merchant.getAccountStatus());
@@ -326,5 +335,21 @@ public class MerchantService {
             case 2 -> "删除";
             default -> "未知";
         };
+    }
+
+    private Agent resolveAgent(Long agentId) {
+        if (agentId == null) {
+            return null;
+        }
+
+        return agentRepository.findById(agentId)
+                .orElseThrow(() -> new IllegalArgumentException("代理不存在"));
+    }
+
+    private Long resolveAgentId(Merchant merchant) {
+        if (merchant.getAgentId() != null) {
+            return merchant.getAgentId();
+        }
+        return merchant.getAgent() == null ? null : merchant.getAgent().getId();
     }
 }

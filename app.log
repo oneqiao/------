@@ -1,0 +1,1357 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.0)
+
+2026-04-22T10:57:11.926+08:00  INFO 22316 --- [           main] c.e.c.CardManagementApplication          : Starting CardManagementApplication v1.0.0 using Java 21.0.2 with PID 22316 (F:\study\postgtaduate\Cursor_project\卡台管理系统\target\card-management-1.0.0.jar started by Lenovo in F:\study\postgtaduate\Cursor_project\卡台管理系统)
+2026-04-22T10:57:11.930+08:00  INFO 22316 --- [           main] c.e.c.CardManagementApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-04-22T10:57:13.226+08:00  INFO 22316 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-22T10:57:13.318+08:00  INFO 22316 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 72 ms. Found 4 JPA repository interfaces.
+2026-04-22T10:57:14.127+08:00  INFO 22316 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-22T10:57:14.127+08:00  INFO 22316 --- [           main] o.a.catalina.core.AprLifecycleListener   : Loaded Apache Tomcat Native library [2.0.9] using APR version [1.7.6].
+2026-04-22T10:57:14.148+08:00  INFO 22316 --- [           main] o.a.catalina.core.AprLifecycleListener   : OpenSSL successfully initialized [OpenSSL 3.5.0 8 Apr 2025]
+2026-04-22T10:57:14.160+08:00  INFO 22316 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-22T10:57:14.160+08:00  INFO 22316 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.16]
+2026-04-22T10:57:14.215+08:00  INFO 22316 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-22T10:57:14.215+08:00  INFO 22316 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2196 ms
+2026-04-22T10:57:14.420+08:00  INFO 22316 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-22T10:57:14.507+08:00  INFO 22316 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.3.1.Final
+2026-04-22T10:57:14.569+08:00  INFO 22316 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-22T10:57:14.920+08:00  INFO 22316 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-22T10:57:14.973+08:00  INFO 22316 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-22T10:57:15.193+08:00  INFO 22316 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@352e5a82
+2026-04-22T10:57:15.208+08:00  INFO 22316 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-22T10:57:16.237+08:00  INFO 22316 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: 
+    alter table merchant_card 
+       modify column card_balance decimal(20,2) default 0.00
+Hibernate: 
+    alter table merchant_card 
+       modify column card_status tinyint default 1
+2026-04-22T10:57:16.369+08:00  INFO 22316 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-22T10:57:17.100+08:00  WARN 22316 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-22T10:57:17.150+08:00  WARN 22316 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 763d1b46-670f-41df-bde1-13d4d981315d
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-22T10:57:17.464+08:00  INFO 22316 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@334ac669, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@77430c79, org.springframework.security.web.context.SecurityContextHolderFilter@7c4de811, org.springframework.security.web.header.HeaderWriterFilter@2fb24ad8, org.springframework.web.filter.CorsFilter@60256d1b, org.springframework.security.web.authentication.logout.LogoutFilter@1d160161, com.example.cardmanagement.config.JwtFilter@d43f205, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4830c979, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@d98ce13, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@506654fa, org.springframework.security.web.session.SessionManagementFilter@28721794, org.springframework.security.web.access.ExceptionTranslationFilter@38affd02, org.springframework.security.web.access.intercept.AuthorizationFilter@52c2d1e8]
+2026-04-22T10:57:17.869+08:00  INFO 22316 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-04-22T10:57:17.903+08:00  INFO 22316 --- [           main] c.e.c.CardManagementApplication          : Started CardManagementApplication in 6.541 seconds (process running for 7.243)
+2026-04-22T10:57:31.211+08:00  INFO 22316 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-22T10:57:31.223+08:00  INFO 22316 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-22T10:57:31.225+08:00  INFO 22316 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-04-22T10:57:31.244+08:00  WARN 22316 --- [nio-8080-exec-1] o.s.w.s.h.HandlerMappingIntrospector     : Cache miss for REQUEST dispatch to '/api/test/encode-default' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+Encoded password for '123456': $2a$10$EjbGVWYLviTNdOCfRzmw5uxYZgw91tkMbectEKGEq1EmkXbTMPbP.
+2026-04-22T10:57:49.445+08:00  INFO 22316 --- [nio-8080-exec-4] c.e.cardmanagement.service.UserService   : Login attempt for username: admin
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+2026-04-22T10:57:49.734+08:00  INFO 22316 --- [nio-8080-exec-4] c.e.cardmanagement.service.UserService   : Login successful for user: admin
+Hibernate: 
+    update
+        sys_user 
+    set
+        create_time=?,
+        email=?,
+        first_name=?,
+        is_admin=?,
+        is_enabled=?,
+        last_login_time=?,
+        last_name=?,
+        password=?,
+        username=? 
+    where
+        id=?
+2026-04-22T10:58:59.726+08:00  INFO 22316 --- [nio-8080-exec-7] c.e.cardmanagement.service.UserService   : Login attempt for username: admin
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+2026-04-22T10:58:59.846+08:00  INFO 22316 --- [nio-8080-exec-7] c.e.cardmanagement.service.UserService   : Login successful for user: admin
+Hibernate: 
+    update
+        sys_user 
+    set
+        create_time=?,
+        email=?,
+        first_name=?,
+        is_admin=?,
+        is_enabled=?,
+        last_login_time=?,
+        last_name=?,
+        password=?,
+        username=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        1=1 
+    order by
+        su1_0.id desc 
+    limit
+        ?, ?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    insert 
+    into
+        sys_user
+        (create_time, email, first_name, is_admin, is_enabled, last_login_time, last_name, password, username) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.id=?
+Hibernate: 
+    update
+        sys_user 
+    set
+        create_time=?,
+        email=?,
+        first_name=?,
+        is_admin=?,
+        is_enabled=?,
+        last_login_time=?,
+        last_name=?,
+        password=?,
+        username=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        count(*) 
+    from
+        sys_user su1_0 
+    where
+        su1_0.id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.id=?
+Hibernate: 
+    delete 
+    from
+        sys_user 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount 
+    from
+        agent a1_0 
+    where
+        1=1 
+    order by
+        a1_0.id desc 
+    limit
+        ?, ?
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        merchant m1_0 
+    where
+        m1_0.agent_id=?
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        merchant m1_0 
+    where
+        m1_0.agent_id=?
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        merchant m1_0 
+    where
+        m1_0.agent_id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    insert 
+    into
+        agent
+        (balance, create_time, name, recharge_rate, single_card_fee, status, total_recharge_amount) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        merchant m1_0 
+    where
+        m1_0.agent_id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount 
+    from
+        agent a1_0 
+    where
+        a1_0.id=?
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        merchant m1_0 
+    where
+        m1_0.agent_id=?
+Hibernate: 
+    update
+        agent 
+    set
+        balance=?,
+        create_time=?,
+        name=?,
+        recharge_rate=?,
+        single_card_fee=?,
+        status=?,
+        total_recharge_amount=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    where
+        m1_0.account_status!=? 
+    order by
+        m1_0.id desc 
+    limit
+        ?, ?
+Hibernate: 
+    select
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount 
+    from
+        agent a1_0 
+    where
+        a1_0.id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    where
+        m1_0.merchant_no=?
+Hibernate: 
+    insert 
+    into
+        merchant
+        (account_status, agent_id, card_balance, card_count, create_time, current_balance, fund_freeze, login_account, login_password, merchant_no, merchant_type, name) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+Hibernate: 
+    update
+        merchant 
+    set
+        account_status=?,
+        agent_id=?,
+        card_balance=?,
+        card_count=?,
+        create_time=?,
+        current_balance=?,
+        fund_freeze=?,
+        login_account=?,
+        login_password=?,
+        merchant_no=?,
+        merchant_type=?,
+        name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+Hibernate: 
+    update
+        merchant 
+    set
+        account_status=?,
+        agent_id=?,
+        card_balance=?,
+        card_count=?,
+        create_time=?,
+        current_balance=?,
+        fund_freeze=?,
+        login_account=?,
+        login_password=?,
+        merchant_no=?,
+        merchant_type=?,
+        name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    where
+        m1_0.account_status!=?
+Hibernate: 
+    select
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount 
+    from
+        agent a1_0 
+    where
+        a1_0.id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+Hibernate: 
+    update
+        merchant 
+    set
+        account_status=?,
+        agent_id=?,
+        card_balance=?,
+        card_count=?,
+        create_time=?,
+        current_balance=?,
+        fund_freeze=?,
+        login_account=?,
+        login_password=?,
+        merchant_no=?,
+        merchant_type=?,
+        name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    where
+        m1_0.account_status=? 
+    order by
+        m1_0.id desc 
+    limit
+        ?, ?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        count(*) 
+    from
+        agent a1_0 
+    where
+        a1_0.id=?
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        merchant m1_0 
+    where
+        m1_0.agent_id=?
+Hibernate: 
+    select
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount 
+    from
+        agent a1_0 
+    where
+        a1_0.id=?
+Hibernate: 
+    delete 
+    from
+        agent 
+    where
+        id=?
+2026-04-22T10:59:32.010+08:00  INFO 22316 --- [nio-8080-exec-7] c.e.cardmanagement.service.UserService   : Login attempt for username: admin
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+2026-04-22T10:59:32.124+08:00  INFO 22316 --- [nio-8080-exec-7] c.e.cardmanagement.service.UserService   : Login successful for user: admin
+Hibernate: 
+    update
+        sys_user 
+    set
+        create_time=?,
+        email=?,
+        first_name=?,
+        is_admin=?,
+        is_enabled=?,
+        last_login_time=?,
+        last_name=?,
+        password=?,
+        username=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+2026-04-22T10:59:58.860+08:00  INFO 22316 --- [nio-8080-exec-2] c.e.cardmanagement.service.UserService   : Login attempt for username: admin
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+2026-04-22T10:59:58.938+08:00  INFO 22316 --- [nio-8080-exec-2] c.e.cardmanagement.service.UserService   : Login successful for user: admin
+Hibernate: 
+    update
+        sys_user 
+    set
+        create_time=?,
+        email=?,
+        first_name=?,
+        is_admin=?,
+        is_enabled=?,
+        last_login_time=?,
+        last_name=?,
+        password=?,
+        username=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    where
+        m1_0.merchant_no=?
+Hibernate: 
+    insert 
+    into
+        merchant
+        (account_status, agent_id, card_balance, card_count, create_time, current_balance, fund_freeze, login_account, login_password, merchant_no, merchant_type, name) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-04-22T11:00:13.307+08:00  INFO 22316 --- [nio-8080-exec-4] c.e.cardmanagement.service.UserService   : Login attempt for username: admin
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+2026-04-22T11:00:13.421+08:00  INFO 22316 --- [nio-8080-exec-4] c.e.cardmanagement.service.UserService   : Login successful for user: admin
+Hibernate: 
+    update
+        sys_user 
+    set
+        create_time=?,
+        email=?,
+        first_name=?,
+        is_admin=?,
+        is_enabled=?,
+        last_login_time=?,
+        last_name=?,
+        password=?,
+        username=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    where
+        m1_0.merchant_no=?
+Hibernate: 
+    insert 
+    into
+        merchant
+        (account_status, agent_id, card_balance, card_count, create_time, current_balance, fund_freeze, login_account, login_password, merchant_no, merchant_type, name) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-04-22T11:00:25.102+08:00  INFO 22316 --- [nio-8080-exec-8] c.e.cardmanagement.service.UserService   : Login attempt for username: admin
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+2026-04-22T11:00:25.178+08:00  INFO 22316 --- [nio-8080-exec-8] c.e.cardmanagement.service.UserService   : Login successful for user: admin
+Hibernate: 
+    update
+        sys_user 
+    set
+        create_time=?,
+        email=?,
+        first_name=?,
+        is_admin=?,
+        is_enabled=?,
+        last_login_time=?,
+        last_name=?,
+        password=?,
+        username=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+Hibernate: 
+    update
+        merchant 
+    set
+        account_status=?,
+        agent_id=?,
+        card_balance=?,
+        card_count=?,
+        create_time=?,
+        current_balance=?,
+        fund_freeze=?,
+        login_account=?,
+        login_password=?,
+        merchant_no=?,
+        merchant_type=?,
+        name=? 
+    where
+        id=?
+Hibernate: 
+    select
+        su1_0.id,
+        su1_0.create_time,
+        su1_0.email,
+        su1_0.first_name,
+        su1_0.is_admin,
+        su1_0.is_enabled,
+        su1_0.last_login_time,
+        su1_0.last_name,
+        su1_0.password,
+        su1_0.username 
+    from
+        sys_user su1_0 
+    where
+        su1_0.username=?
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.account_status,
+        a1_0.id,
+        a1_0.balance,
+        a1_0.create_time,
+        a1_0.name,
+        a1_0.recharge_rate,
+        a1_0.single_card_fee,
+        a1_0.status,
+        a1_0.total_recharge_amount,
+        m1_0.agent_id,
+        m1_0.card_balance,
+        m1_0.card_count,
+        m1_0.create_time,
+        m1_0.current_balance,
+        m1_0.fund_freeze,
+        m1_0.login_account,
+        m1_0.login_password,
+        m1_0.merchant_no,
+        m1_0.merchant_type,
+        m1_0.name 
+    from
+        merchant m1_0 
+    left join
+        agent a1_0 
+            on a1_0.id=m1_0.agent_id 
+    where
+        m1_0.id=?
+Hibernate: 
+    update
+        merchant 
+    set
+        account_status=?,
+        agent_id=?,
+        card_balance=?,
+        card_count=?,
+        create_time=?,
+        current_balance=?,
+        fund_freeze=?,
+        login_account=?,
+        login_password=?,
+        merchant_no=?,
+        merchant_type=?,
+        name=? 
+    where
+        id=?
